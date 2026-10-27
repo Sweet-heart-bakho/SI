@@ -16,7 +16,7 @@
 > - ИИ-помощник в правом нижнем углу — **Claude** или **ChatGPT** на выбор: видит открытую тему и вопрос, помогает придумывать и проверять вопросы;
 > - исправления: Ctrl+Z работает везде, Ctrl+V вставляет картинку и в ответ.
 >
-> ⬇️ **Скачать готовую программу:** [SIQuester-modern-6.9.1-win-x64.zip](https://github.com/Sweet-heart-bakho/SI/releases/latest) — распакуйте и запустите `SIQuester.exe`, ничего устанавливать не нужно.
+> ⬇️ **Скачать готовую программу:** [страница релиза](https://github.com/Sweet-heart-bakho/SI/releases/latest) — установщик `SIQuester-Modern-…-x64.msi` (ставится рядом с обычным SIQuester, ничего дополнительно устанавливать не нужно) или zip-архив без установки.
 >
 > 📄 **Подробное описание всех изменений:** [docs/SIQuester-modern-ui.md](docs/SIQuester-modern-ui.md)
 >

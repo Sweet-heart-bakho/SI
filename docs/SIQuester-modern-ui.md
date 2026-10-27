@@ -182,3 +182,18 @@ Exe: `bin/AnyCPU.Debug/SIQuester/net10.0-windows7.0/SIQuester.exe`.
 (При сборке отдельного `.csproj` добавьте `-p:Platform=AnyCPU -p:Configuration=Debug`, иначе вывод попадёт в `bin/SIQuester/`.)
 
 Для ИИ-помощника укажите ключ в «Параметрах → ИИ-помощник» (Claude) или в разделе GPT (ChatGPT).
+
+## Установщик
+
+Готовая сборка выкладывается в [Releases](https://github.com/Sweet-heart-bakho/SI/releases/latest): установщик `.msi` и zip-архив. Обоим не нужен установленный .NET — всё необходимое внутри.
+
+Установщик собирается проектом `deploy/SIQuester.Modern.Setup` — это копия авторского `deploy/SIQuester.Setup` (WiX 5) с отличиями:
+- имя программы **SIQuester Modern** и свои идентификаторы (UpgradeCode и GUID компонентов), поэтому она ставится **рядом с обычным SIQuester**, а не заменяет его;
+- папка установки `%LOCALAPPDATA%\Khil-soft\SIQuester Modern`, права администратора не нужны;
+- ярлыки на рабочем столе и в меню «Пуск»; после установки программа сразу запускается.
+
+Сборка:
+```
+dotnet publish src\SIQuester\SIQuester\SIQuester.csproj -c Release -p:PublishSingleFile=true -r win-x64 --self-contained true -p:EnableCompressionInSingleFile=true -p:Version=6.9.1
+dotnet build deploy\SIQuester.Modern.Setup\SIQuester.Modern.Setup.wixproj -p:Configuration=Release -p:Platform=x64 -p:MsiProductVersion=6.9.1 -p:BuildProjectReferences=false
+```
