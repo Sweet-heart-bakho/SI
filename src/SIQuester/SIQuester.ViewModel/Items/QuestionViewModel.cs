@@ -49,7 +49,6 @@ public sealed class QuestionViewModel : ItemViewModel<Question>
     public ICommand RemoveComplexAnswer { get; private set; }
 
     public SimpleCommand AddWrongAnswers { get; private set; }
-
     public ICommand ClearType { get; private set; }
 
     public override ICommand Add { get; protected set; }

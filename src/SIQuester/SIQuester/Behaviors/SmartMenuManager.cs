@@ -126,8 +126,25 @@ public static class SmartMenuManager
         var context = control.DataContext;
         doc.ActiveItem = context;
 
-        ActionMenuViewModel.Instance.PlacementTarget = e.OriginalSource as UIElement ?? control;
+        // The toolbar goes above the whole question row (see PlacementManager): next to the edited element,
+        // never covering it or the buttons beside it
+        ActionMenuViewModel.Instance.PlacementTarget = control;
         ActionMenuViewModel.Instance.IsOpen = true;
+    }
+
+    private static T? FindAncestor<T>(DependencyObject? element) where T : DependencyObject
+    {
+        while (element != null)
+        {
+            if (element is T found)
+            {
+                return found;
+            }
+
+            element = System.Windows.Media.VisualTreeHelper.GetParent(element);
+        }
+
+        return null;
     }
 
     private static void Control_LostFocus(object sender, RoutedEventArgs e)

@@ -175,8 +175,77 @@ public partial class MainWindow : MetroWindow
         }
     }
 
+    // Ctrl + mouse wheel changes the text size (like in Office)
+    protected override void OnPreviewMouseWheel(MouseWheelEventArgs e)
+    {
+        if ((Keyboard.Modifiers & ModifierKeys.Control) != 0)
+        {
+            DocumentView.ChangeFontSize(e.Delta > 0 ? +1 : -1);
+            e.Handled = true;
+            return;
+        }
+
+        base.OnPreviewMouseWheel(e);
+    }
+
+    private static bool IsInsideAssistantChat(DependencyObject? element)
+    {
+        while (element != null)
+        {
+            if (element is AssistantChatView)
+            {
+                return true;
+            }
+
+            element = element is System.Windows.Media.Visual
+                ? System.Windows.Media.VisualTreeHelper.GetParent(element)
+                : LogicalTreeHelper.GetParent(element);
+        }
+
+        return false;
+    }
+
     private void Main_PreviewKeyDown(object sender, KeyEventArgs e)
     {
+        // Ctrl+Plus / Ctrl+Minus change the text size, Ctrl+0 restores the default
+        if ((e.KeyboardDevice.Modifiers & ModifierKeys.Control) != 0
+            && e.Key is Key.OemPlus or Key.Add or Key.OemMinus or Key.Subtract or Key.D0 or Key.NumPad0)
+        {
+            if (e.Key is Key.D0 or Key.NumPad0)
+            {
+                DocumentView.ResetFontSize();
+            }
+            else
+            {
+                DocumentView.ChangeFontSize(e.Key is Key.OemPlus or Key.Add ? +1 : -1);
+            }
+
+            e.Handled = true;
+            return;
+        }
+
+        // Ctrl+Z / Ctrl+Y always use document undo/redo (same as the toolbar buttons),
+        // even when a text box has focus and would otherwise handle its own undo.
+        // The assistant chat input keeps its own text undo.
+        if (DataContext is MainViewModel mainVm
+            && !IsInsideAssistantChat(Keyboard.FocusedElement as DependencyObject)
+            && mainVm.ActiveDocument != null
+            && (e.KeyboardDevice.Modifiers & ModifierKeys.Control) != 0
+            && (e.Key == Key.Z || e.Key == Key.Y))
+        {
+            var isRedo = e.Key == Key.Y || (e.KeyboardDevice.Modifiers & ModifierKeys.Shift) != 0;
+            var operations = mainVm.ActiveDocument.OperationsManager;
+            var command = isRedo ? operations.Redo : operations.Undo;
+
+            if (command.CanExecute(null))
+            {
+                command.Execute(null);
+            }
+
+            e.Handled = true;
+            return;
+        }
+
         if (DataContext is MainViewModel mainViewModel && e.Key == Key.Insert)
         {
             var cmd = (e.KeyboardDevice.Modifiers & ModifierKeys.Shift) > 0 ?
@@ -228,6 +297,26 @@ public partial class MainWindow : MetroWindow
 
         var activeNode = doc.ActiveNode;
         var activeItem = doc.ActiveItem;
+
+        // Media pasted while editing answers goes to the answer (not to the question text)
+        if (activeItem is AnswersViewModel answers && (Clipboard.ContainsFileDropList() || Clipboard.ContainsImage()))
+        {
+            try
+            {
+                var mediaFiles = GetClipboardMediaFiles();
+
+                if (!answers.TryPasteMedia(mediaFiles))
+                {
+                    MainViewModel.ShowError(new InvalidOperationException(ViewModel.UiText.WrongAnswersTextOnly));
+                }
+            }
+            catch (Exception ex)
+            {
+                MainViewModel.ShowError(ex);
+            }
+
+            return;
+        }
 
         var contentItemViewModel = activeItem as ContentItemsViewModel;
 
@@ -291,5 +380,40 @@ public partial class MainWindow : MetroWindow
         {
             MainViewModel.ShowError(ex);
         }
+    }
+
+    /// <summary>
+    /// Files from the clipboard: copied files, or a copied picture (e.g. a screenshot) saved as a temporary PNG.
+    /// </summary>
+    private static List<string> GetClipboardMediaFiles()
+    {
+        var result = new List<string>();
+        var files = Clipboard.GetFileDropList();
+
+        foreach (var file in files)
+        {
+            if (file != null)
+            {
+                result.Add(file);
+            }
+        }
+
+        if (result.Count == 0 && Clipboard.ContainsImage())
+        {
+            var bitmap = Clipboard.GetImage();
+            using var stream = new MemoryStream();
+            var encoder = new PngBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(bitmap));
+            encoder.Save(stream);
+
+            var tempMediaDirectory = Path.Combine(Path.GetTempPath(), AppSettings.ProductName, AppSettings.MediaFolderName);
+            Directory.CreateDirectory(tempMediaDirectory);
+
+            var fileName = Path.Combine(tempMediaDirectory, $"{Guid.NewGuid()}.png");
+            File.WriteAllBytes(fileName, stream.ToArray());
+            result.Add(fileName);
+        }
+
+        return result;
     }
 }

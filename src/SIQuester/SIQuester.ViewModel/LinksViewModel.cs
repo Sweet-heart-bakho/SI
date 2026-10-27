@@ -9,6 +9,11 @@ public abstract class LinksViewModel : ItemsViewModel<string>
 
     public ICommand LinkItem { get; private set; }
 
+    /// <summary>
+    /// Removes all items (one undoable change).
+    /// </summary>
+    public ICommand ClearAll { get; private set; }
+
     public override QDocument? OwnerDocument
     {
         get
@@ -30,8 +35,28 @@ public abstract class LinksViewModel : ItemsViewModel<string>
         Owner = owner;
 
         LinkItem = new SimpleCommand(LinkItem_Executed);
+        ClearAll = new SimpleCommand(ClearAll_Executed);
 
         UpdateCommands();
+    }
+
+    private void ClearAll_Executed(object? arg)
+    {
+        try
+        {
+            using var change = OwnerDocument?.OperationsManager.BeginComplexChange();
+
+            while (Count > 0)
+            {
+                RemoveAt(Count - 1);
+            }
+
+            change?.Commit();
+        }
+        catch (Exception exc)
+        {
+            PlatformSpecific.PlatformManager.Instance.ShowErrorMessage(exc.Message);
+        }
     }
 
     private void LinkItem_Executed(object? arg)

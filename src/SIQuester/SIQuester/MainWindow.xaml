@@ -17,14 +17,18 @@
     Height="450"
     Width="746"
     TitleCharacterCasing="Normal"
-    TitleBarHeight="25"
+    TitleBarHeight="32"
+    WindowTitleBrush="{DynamicResource Ui.TitleBar}"
+    NonActiveWindowTitleBrush="{DynamicResource Ui.TitleBarInactive}"
+    FontFamily="Segoe UI Variable Text, Segoe UI"
     Name="main"
     WindowState="Maximized"
     Icon="Resources/logo.jpg"
     Closing="Main_Closing"
     Loaded="Main_Loaded"
     SnapsToDevicePixels="True"
-    TextOptions.TextFormattingMode="Display"
+    TextOptions.TextFormattingMode="Ideal"
+    TextOptions.TextRenderingMode="ClearType"
     PreviewKeyDown="Main_PreviewKeyDown"
     Background="{Binding Theme, Source={x:Static m:AppSettings.Default}, Converter={StaticResource ThemeBackgroundConverter}, FallbackValue=#FFFBFBFF, TargetNullValue=#FFFBFBFF}"
     Foreground="{Binding Theme, Source={x:Static m:AppSettings.Default}, Converter={StaticResource ThemeForegroundConverter}, FallbackValue=Black, TargetNullValue=Black}">
@@ -33,6 +37,40 @@
         <siqcv:DirectoryConverter x:Key="DirectoryConverter" />
         <siqcv:FileNameConverter x:Key="FileNameConverter" />
 
+        <!-- Title bar buttons: white Fluent glyphs with a soft rounded hover (like Office) -->
+        <Style x:Key="TitleBarButton" TargetType="ButtonBase">
+            <Setter Property="Width" Value="34" />
+            <Setter Property="Height" Value="30" />
+            <Setter Property="Margin" Value="1,0" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ButtonBase">
+                        <Border x:Name="Bg" CornerRadius="5" Background="Transparent">
+                            <ContentPresenter x:Name="Content" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="#26FFFFFF" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="#40FFFFFF" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Content" Property="Opacity" Value="0.45" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="TitleBarGlyph" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Segoe Fluent Icons, Segoe MDL2 Assets" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="Foreground" Value="White" />
+        </Style>
         <DataTemplate x:Key="TabItemHeaderTemplate">
             <DockPanel AllowDrop="True" Height="25" Background="Transparent">
                 <Button
@@ -46,8 +84,28 @@
                     Height="20"
                     Command="{Binding Close}"
                     ToolTip="{x:Static lp:Resources.Close}"
-                    Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}">
-                    <Path Fill="#00FFFFFF" Stroke="#FF989898" StrokeThickness="2" Data="M0,0L12,12M0,12L12,0" />
+                    FocusVisualStyle="{x:Null}">
+                    <!-- Round close button, readable in light and dark themes -->
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="Bg" CornerRadius="10" Background="Transparent">
+                                <TextBlock
+                                    x:Name="Glyph"
+                                    Text="&#xE711;"
+                                    FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets"
+                                    FontSize="10"
+                                    Foreground="{DynamicResource Ui.Muted}"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Bg" Property="Background" Value="{DynamicResource Ui.Hover}" />
+                                    <Setter TargetName="Glyph" Property="Foreground" Value="{DynamicResource Ui.Text}" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
                 </Button>
 
                 <ContentControl Style="{StaticResource WarningBox}" />
@@ -78,7 +136,7 @@
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="AllowDrop" Value="True" />
             <Setter Property="Background" Value="{StaticResource MainBack}" />
-            <Setter Property="BorderBrush" Value="#FFACACAC" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Ui.CardStroke}" />
             <Setter Property="BorderThickness" Value="0,1,0,0" />
             <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" />
 
@@ -302,7 +360,16 @@
     <Window.TaskbarItemInfo>
         <TaskbarItemInfo Description="{x:Static lp:Resources.AppTitle}" />
     </Window.TaskbarItemInfo>
-    
+
+    <!--
+        With the Fluent theme enabled WPF assigns its own Window style to every window whose Style is null.
+        That style replaces the MahApps template and MetroWindow.OnApplyTemplate crashes (no PART_FlyoutModal).
+        An explicit (empty) style prevents this; the MahApps template still comes from its default theme style.
+    -->
+    <metro:MetroWindow.Style>
+        <Style TargetType="metro:MetroWindow" />
+    </metro:MetroWindow.Style>
+
     <metro:MetroWindow.IconTemplate>
         <DataTemplate>
             <Grid
@@ -326,32 +393,22 @@
     
     <metro:MetroWindow.LeftWindowCommands>
         <metro:WindowCommands ShowSeparators="False" ShowLastSeparator="False">
-            <Button
-                Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
-                ToolTip="{x:Static lp:Resources.ToolTipNew}"
-                Command="ApplicationCommands.New">
-                <Path Stretch="Uniform" Fill="White" Margin="4,2" Data="{Binding Source={StaticResource app_new},Path=Data}" />
+
+            <Button Style="{StaticResource TitleBarButton}" ToolTip="{x:Static lp:Resources.ToolTipNew}" Command="ApplicationCommands.New">
+                <TextBlock Style="{StaticResource TitleBarGlyph}" Text="&#xE8A5;" />
             </Button>
 
-            <Button
-                Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
-                ToolTip="{x:Static lp:Resources.Open}"
-                Command="ApplicationCommands.Open">
-                <Path Stretch="Uniform" Fill="#FFCD58" Margin="2" Data="{Binding Source={StaticResource app_open},Path=Data}" />
-               
-                <Button.LayoutTransform>
-                    <ScaleTransform ScaleX="0.75" />
-                </Button.LayoutTransform>
+            <Button Style="{StaticResource TitleBarButton}" ToolTip="{x:Static lp:Resources.Open}" Command="ApplicationCommands.Open">
+                <TextBlock Style="{StaticResource TitleBarGlyph}" Text="&#xE838;" />
             </Button>
 
             <siq:DropDownButton
-                Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                Style="{StaticResource TitleBarButton}"
+                Width="20"
                 ToolTip="{x:Static lp:Resources.OpenRecent}"
                 DataContext="{Binding}"
-                IsEnabled="{Binding Settings.History.Files.Count,Converter={StaticResource GreaterZero}}"
-                VerticalAlignment="Stretch"
-                HorizontalAlignment="Stretch">
-                <Path Data="M0,0L8,0L4,4z" Fill="White" />
+                IsEnabled="{Binding Settings.History.Files.Count,Converter={StaticResource GreaterZero}}">
+                <TextBlock Style="{StaticResource TitleBarGlyph}" Text="&#xE70D;" FontSize="10" />
 
                 <siq:DropDownButton.DropDown>
                     <ContextMenu ItemsSource="{Binding Settings.History.Files}">
@@ -360,21 +417,19 @@
                                 <Setter Property="HeaderedItemsControl.Header" Value="{Binding}" />
                                 <Setter Property="MenuItem.Command" Value="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=DataContext.OpenRecent}" />
                                 <Setter Property="MenuItem.CommandParameter" Value="{Binding}" />
-                                <Setter Property="Padding" Value="0,5" />
                             </Style>
                         </ContextMenu.ItemContainerStyle>
                     </ContextMenu>
                 </siq:DropDownButton.DropDown>
             </siq:DropDownButton>
 
-            <siq:DropDownButton Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" ToolTip="{x:Static lp:Resources.Import}">
-                <Path Stretch="Uniform" Fill="White" Margin="3,2,4,2" Data="{Binding Source={StaticResource app_import},Path=Data}" />
+            <siq:DropDownButton Style="{StaticResource TitleBarButton}" ToolTip="{x:Static lp:Resources.Import}">
+                <TextBlock Style="{StaticResource TitleBarGlyph}" Text="&#xE8B5;" />
                 
                 <siq:DropDownButton.DropDown>
                     <ContextMenu>
                         <ContextMenu.ItemContainerStyle>
                             <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}">
-                                <Setter Property="Padding" Value="0,5" />
                             </Style>
                         </ContextMenu.ItemContainerStyle>
 
@@ -415,48 +470,15 @@
                 </siq:DropDownButton.DropDown>
             </siq:DropDownButton>
 
-            <Button Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" ToolTip="{x:Static lp:Resources.SaveAll}" Command="{Binding SaveAll}">
-                <Button.ContentTemplate>
-                    <DataTemplate>
-                        <Grid Width="20" Height="20">                            
-                            <Path
-                                Name="p1"
-                                Stretch="Uniform"
-                                Fill="#FF5000C3"
-                                Margin="5"
-                                Data="{Binding Source={StaticResource app_save},Path=Data}">                                
-                                <Path.RenderTransform>
-                                    <TranslateTransform X="-4" Y="4" />
-                                </Path.RenderTransform>
-                            </Path>
-                            
-                            <Path
-                                Name="p2"
-                                Stretch="Uniform"
-                                Fill="#FF5000C3"
-                                Margin="5"
-                                Data="{Binding Source={StaticResource app_save},Path=Data}">                                
-                                <Path.RenderTransform>
-                                    <TranslateTransform X="4" Y="-4" />
-                                </Path.RenderTransform>
-                            </Path>                            
-                        </Grid>
-                        
-                        <DataTemplate.Triggers>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="p1" Property="Fill" Value="LightGray" />
-                                <Setter TargetName="p2" Property="Fill" Value="LightGray" />
-                            </Trigger>
-                        </DataTemplate.Triggers>
-                    </DataTemplate>
-                </Button.ContentTemplate>
+            <Button Style="{StaticResource TitleBarButton}" ToolTip="{x:Static lp:Resources.SaveAll}" Command="{Binding SaveAll}">
+                <TextBlock Style="{StaticResource TitleBarGlyph}" Text="&#xE78C;" />
             </Button>
 
             <Button
-                Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                Style="{StaticResource TitleBarButton}"
                 ToolTip="{x:Static lp:Resources.ToolTipFileSearch}"
                 Command="{Binding SearchFolder}">                
-                <Path Stretch="Uniform" Fill="White" Margin="2" Data="{Binding Source={StaticResource app_search},Path=Data}" />            
+                <TextBlock Style="{StaticResource TitleBarGlyph}" Text="&#xE721;" />
             </Button>
         </metro:WindowCommands>
     </metro:MetroWindow.LeftWindowCommands>
@@ -464,22 +486,19 @@
     <metro:MetroWindow.RightWindowCommands>
         <metro:WindowCommands ShowSeparators="False" ShowLastSeparator="False">
             <Button
-                VerticalAlignment="Stretch"
-                Width="25"
-                Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}"
+                Style="{StaticResource TitleBarButton}"
                 ToolTip="{x:Static lp:Resources.Settings}"
-                Command="{Binding SetSettings}">                
-                <Path Stretch="Uniform" Fill="White" Margin="2" Data="{Binding Source={StaticResource app_cog},Path=Data}" />                
+                Command="{Binding SetSettings}">
+                <TextBlock Style="{StaticResource TitleBarGlyph}" Text="&#xE713;" />
             </Button>
-            
-            <siq:DropDownButton Style="{StaticResource {x:Static ToolBar.ButtonStyleKey}}" ToolTip="{x:Static lp:Resources.Help}">
-                <TextBlock Text="?" FontSize="14" FontWeight="Bold" Foreground="White" Width="20" TextAlignment="Center" Margin="0,-2,0,0" />
+
+            <siq:DropDownButton Style="{StaticResource TitleBarButton}" ToolTip="{x:Static lp:Resources.Help}">
+                <TextBlock Style="{StaticResource TitleBarGlyph}" Text="&#xE897;" />
                 
                 <siq:DropDownButton.DropDown>
                     <ContextMenu>
                         <ContextMenu.ItemContainerStyle>
                             <Style TargetType="{x:Type MenuItem}" BasedOn="{StaticResource {x:Type MenuItem}}">
-                                <Setter Property="Padding" Value="0,5" />
                             </Style>
                         </ContextMenu.ItemContainerStyle>
 
@@ -497,9 +516,14 @@
         </metro:WindowCommands>
     </metro:MetroWindow.RightWindowCommands>
     
+    <Grid>
     <TabControl
         Name="tabControl1" 
         SelectionChanged="TabControl1_SelectionChanged"
         Style="{StaticResource TabControlStyle1}"
-        ItemContainerStyle="{StaticResource TabItemStyle1}" />    
+        ItemContainerStyle="{StaticResource TabItemStyle1}" />
+
+        <!-- Claude assistant: floating chat in the bottom-right corner -->
+        <siq:AssistantChatView DataContext="{Binding Assistant}" />
+    </Grid>
 </metro:MetroWindow>

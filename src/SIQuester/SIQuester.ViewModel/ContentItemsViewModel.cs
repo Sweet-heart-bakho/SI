@@ -235,6 +235,17 @@ public sealed class ContentItemsViewModel : ItemsViewModel<ContentItemViewModel>
     {
         base.OnRemoveAt(index);
 
+        if (Count == 0
+            && Owner.Parameters != null
+            && Owner.Parameters.TryGetValue(QuestionParameterNames.Answer, out var answer)
+            && answer.ContentValue == this)
+        {
+            // The last item of the complex answer was deleted: remove the empty complex answer itself
+            // (otherwise an empty field stays and the simple answer editor stays hidden)
+            Owner.Parameters.RemoveAnswer();
+            return;
+        }
+
         if (Count == 0)
         {
             Add(new ContentItemViewModel(new ContentItem

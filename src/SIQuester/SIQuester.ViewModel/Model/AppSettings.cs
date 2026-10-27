@@ -46,7 +46,7 @@ public sealed class AppSettings : INotifyPropertyChanged
     /// </summary>
     public const string SiqExtension = "siq";
 
-    private const string DefaultFontFamily = "Calibri";
+    private const string DefaultFontFamily = "Segoe UI Variable Text";
 
     private const int DefaultSelectOptionCount = 4;
     private const bool DefaultUseImageDuration = false;
@@ -398,9 +398,9 @@ public sealed class AppSettings : INotifyPropertyChanged
         }
     }
 
-    private int _fontSize = 15;
+    private int _fontSize = 16;
 
-    [DefaultValue(15)]
+    [DefaultValue(16)]
     public int FontSize
     {
         get => _fontSize;
@@ -601,6 +601,7 @@ public sealed class AppSettings : INotifyPropertyChanged
             if (_useGPT != value)
             {
                 _useGPT = value;
+                OnPropertyChanged(nameof(CanUseAI));
                 OnPropertyChanged();
             }
         }
@@ -618,10 +619,61 @@ public sealed class AppSettings : INotifyPropertyChanged
             if (_gptApiKey != value)
             {
                 _gptApiKey = value;
+                OnPropertyChanged(nameof(CanUseAI));
                 OnPropertyChanged();
             }
         }
     }
+
+    private AiProvider _aiProvider = AiProvider.Claude;
+
+    /// <summary>
+    /// Which AI works in the assistant chat and in question/theme generation.
+    /// </summary>
+    [DefaultValue(AiProvider.Claude)]
+    public AiProvider AiProvider
+    {
+        get => _aiProvider;
+        set
+        {
+            if (_aiProvider != value)
+            {
+                _aiProvider = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    private string _claudeApiKey = "";
+
+    /// <summary>
+    /// Anthropic (Claude) API key. Not stored in the settings file: saved encrypted (DPAPI) next to it.
+    /// </summary>
+    [DefaultValue("")]
+    [JsonIgnore]
+    public string ClaudeApiKey
+    {
+        get => _claudeApiKey;
+        set
+        {
+            if (_claudeApiKey != value)
+            {
+                _claudeApiKey = value;
+                OnPropertyChanged(nameof(CanUseAI));
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    /// <summary>
+    /// AI generation is available: GPT is enabled or a Claude API key is set (in settings or ANTHROPIC_API_KEY).
+    /// </summary>
+    [JsonIgnore]
+    public bool CanUseAI =>
+        UseGPT
+        || !string.IsNullOrWhiteSpace(GPTApiKey)
+        || !string.IsNullOrWhiteSpace(ClaudeApiKey)
+        || !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("ANTHROPIC_API_KEY"));
 
     private string _gptModel = DefaultGPTModel;
     
@@ -728,6 +780,7 @@ public sealed class AppSettings : INotifyPropertyChanged
         CreateQuestionsWithTheme = defaultSettings.CreateQuestionsWithTheme;
         FontFamily = defaultSettings.FontFamily;
         FontSize = defaultSettings.FontSize;
+        AiProvider = defaultSettings.AiProvider;
         QuestionBase = defaultSettings.QuestionBase;
         SearchForUpdates = defaultSettings.SearchForUpdates;
         RemoveLinks = defaultSettings.RemoveLinks;
