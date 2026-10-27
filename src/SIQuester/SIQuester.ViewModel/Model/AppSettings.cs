@@ -625,6 +625,25 @@ public sealed class AppSettings : INotifyPropertyChanged
         }
     }
 
+    private bool _autoCompressMedia = true;
+
+    /// <summary>
+    /// Compress pictures (and videos, with FFmpeg) that exceed the SIGame size limits when they are added.
+    /// </summary>
+    [DefaultValue(true)]
+    public bool AutoCompressMedia
+    {
+        get => _autoCompressMedia;
+        set
+        {
+            if (_autoCompressMedia != value)
+            {
+                _autoCompressMedia = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
     private AiProvider _aiProvider = AiProvider.Claude;
 
     /// <summary>
@@ -781,6 +800,7 @@ public sealed class AppSettings : INotifyPropertyChanged
         FontFamily = defaultSettings.FontFamily;
         FontSize = defaultSettings.FontSize;
         AiProvider = defaultSettings.AiProvider;
+        AutoCompressMedia = defaultSettings.AutoCompressMedia;
         QuestionBase = defaultSettings.QuestionBase;
         SearchForUpdates = defaultSettings.SearchForUpdates;
         RemoveLinks = defaultSettings.RemoveLinks;

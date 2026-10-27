@@ -20,6 +20,7 @@
 10. [Анимации и плавный курсор](#10-анимации-и-плавный-курсор)
 11. [ИИ-помощник: Claude или ChatGPT](#11-ии-помощник-claude-или-chatgpt)
 12. [Окна «Параметры» и «Теги», выпадающие меню](#12-окна-параметры-и-теги-выпадающие-меню)
+12a. [Автоматическое сжатие медиа](#12a-автоматическое-сжатие-медиа)
 13. [Исправления поведения](#13-исправления-поведения)
 14. [Локализация](#14-локализация)
 15. [Список файлов](#15-список-файлов)
@@ -124,6 +125,21 @@
 - **«Теги»**: выбранные теги — «пилюли» с «×»; поле «Найти или добавить тег» сразу **фильтрует каталог**; теги-кнопки скруглённые, выбранные подсвечены акцентом; окно можно растягивать, поддерживает тёмную тему.
 - **Контекстные меню** — свой шаблон: скругление, тень, без старой полосы с линией слева; отступы пунктов как в Fluent, сочетания клавиш выровнены.
 
+## 12a. Автоматическое сжатие медиа
+
+SIGame ограничивает размер файлов: картинка — 1 МБ, звук — 5 МБ, видео — 10 МБ. Раньше пак с контролем качества просто не принимал файл больше лимита, а в остальных случаях программа предупреждала только при сохранении. Теперь большой файл **сжимается автоматически при добавлении** (выбор файла, Ctrl+V, перетаскивание) — `Helpers/MediaShrinker.cs`, вызов из `MediaStorageViewModel.AddFile`.
+
+- **Картинки** — встроенными средствами Windows, без сторонних программ:
+  - сначала размер ограничивается 2560 px по длинной стороне, затем подбирается качество JPEG (88 → 64), и если не хватает — картинка уменьшается шагами по 20 %, пока не уложится в 1 МБ;
+  - PNG с прозрачностью остаётся PNG (прозрачность сохраняется), остальные картинки становятся JPEG;
+  - анимированные GIF и AVIF не трогаются (чтобы не потерять анимацию).
+  - Пример: JPEG 10,5 МБ → 856 КБ, PNG 19,6 МБ → JPEG 931 КБ (≈0,3 с).
+- **Видео и звук** — через бесплатную утилиту **FFmpeg**, если она установлена (рядом с программой, в `PATH` или через `winget install Gyan.FFmpeg`):
+  - битрейт рассчитывается по длительности файла так, чтобы уложиться в лимит; видео — H.264 + AAC в MP4 (ширина до 1280 px), звук — MP3;
+  - во время сжатия показывается окно прогресса, программа не зависает;
+  - если FFmpeg нет, программа один раз подскажет, как его установить, и добавит файл без сжатия.
+- Отключается галочкой в «Параметрах» (`AppSettings.AutoCompressMedia`, по умолчанию включено).
+
 ## 13. Исправления поведения
 
 - **Ctrl+Z / Ctrl+Y** всегда выполняют отмену/повтор документа (как кнопки на панели), даже если курсор в текстовом поле. В поле чата работает обычная отмена текста.
@@ -149,6 +165,7 @@
 | `SIQuester/Converters/TagFilterVisibilityConverter.cs` | фильтр в окне тегов |
 | `SIQuester/Converters/ToolbarCaptionConverter.cs` | подписи рядов панели действий |
 | `SIQuester/Helpers/FluentIcons.cs` | иконки Fluent |
+| `SIQuester/Helpers/MediaShrinker.cs` | автоматическое сжатие картинок, звука и видео |
 | `SIQuester/View/AssistantChatView.xaml(.cs)` | окно чата |
 | `SIQuester/View/Dictionaries/Palette.Light.xaml`, `Palette.Dark.xaml` | палитры |
 | `SIQuester.ViewModel/AssistantChatViewModel.cs` | логика чата |
@@ -156,7 +173,7 @@
 | `SIQuester.ViewModel/Services/GptAssistant.cs` | чат ChatGPT |
 | `SIQuester.ViewModel/UiText.cs` | новые тексты RU/EN |
 
-**Изменённые:** `App.xaml(.cs)`, `MainWindow.xaml(.cs)`, `View/DocumentView.xaml(.cs)`, `View/MenuDictionary.xaml`, `View/SelectTagsView.xaml`, `View/SettingsView.xaml`, `Behaviors/PlacementManager.cs`, `Behaviors/SmartMenuManager.cs`, `Helpers/SettingsHelper.cs`, а в ViewModel — `AnswersViewModel.cs`, `ContentItemsViewModel.cs`, `Helpers/QuestionExtensions.cs`, `Items/PackageViewModel.cs`, `Items/QuestionViewModel.cs`, `Items/ThemeViewModel.cs`, `LinksViewModel.cs`, `Model/AppSettings.cs`, `Model/Enums.cs`, `Services/QuestionsGenerator.cs`, `Workspaces/MainViewModel.cs`, `Workspaces/QDocument.cs`, `SIQuester.ViewModel.csproj` (+ пакет `Anthropic`).
+**Изменённые:** `App.xaml(.cs)`, `MainWindow.xaml(.cs)`, `View/DocumentView.xaml(.cs)`, `View/MenuDictionary.xaml`, `View/SelectTagsView.xaml`, `View/SettingsView.xaml`, `Behaviors/PlacementManager.cs`, `Behaviors/SmartMenuManager.cs`, `Helpers/SettingsHelper.cs`, `Implementation/DesktopManager.cs`, а в ViewModel — `PlatformSpecific/PlatformManager.cs`, `Workspaces/Sidebar/MediaStorageViewModel.cs`, — `AnswersViewModel.cs`, `ContentItemsViewModel.cs`, `Helpers/QuestionExtensions.cs`, `Items/PackageViewModel.cs`, `Items/QuestionViewModel.cs`, `Items/ThemeViewModel.cs`, `LinksViewModel.cs`, `Model/AppSettings.cs`, `Model/Enums.cs`, `Services/QuestionsGenerator.cs`, `Workspaces/MainViewModel.cs`, `Workspaces/QDocument.cs`, `SIQuester.ViewModel.csproj` (+ пакет `Anthropic`).
 
 ## 16. Как проверить
 

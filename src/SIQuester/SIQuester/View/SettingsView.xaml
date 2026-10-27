@@ -111,6 +111,9 @@
             <CheckBox Content="{x:Static lp:Resources.SpellChecking}" IsChecked="{Binding Model.SpellChecking}" IsEnabled="{Binding SpellCheckingEnabled}" />
             <CheckBox Content="{x:Static lp:Resources.RemoveUnusedMedia}" IsChecked="{Binding Model.RemoveLinks}" />
             <CheckBox Content="{x:Static lp:Resources.CheckFileSize}" IsChecked="{Binding Model.CheckFileSize}" />
+            <CheckBox IsChecked="{Binding Model.AutoCompressMedia}">
+                <TextBlock Text="{x:Static vm:UiText.AutoCompressMedia}" TextWrapping="Wrap" />
+            </CheckBox>
             <CheckBox Content="{x:Static lp:Resources.SetRightAnswerFromFileName}" IsChecked="{Binding Model.SetRightAnswerFromFileName}" />
             <CheckBox Content="{x:Static lp:Resources.AskToSetTagsOnSave}" IsChecked="{Binding Model.AskToSetTagsOnSave}" />
 

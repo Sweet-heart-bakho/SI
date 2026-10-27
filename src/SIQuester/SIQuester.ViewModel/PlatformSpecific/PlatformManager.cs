@@ -89,6 +89,16 @@ public abstract class PlatformManager
 
     public abstract string CompressImage(string imageUri);
 
+    /// <summary>
+    /// Makes a media file fit the size limit before it is added to the package
+    /// (pictures are re-encoded/resized, videos are re-encoded when FFmpeg is available).
+    /// </summary>
+    /// <param name="filePath">Source file.</param>
+    /// <param name="collectionName">Media collection (Images, Audio, Video, Html).</param>
+    /// <param name="maxBytes">Size limit.</param>
+    /// <returns>Path of the file to add: the original one or a compressed copy.</returns>
+    public virtual string ShrinkMediaIfNeeded(string filePath, string collectionName, long maxBytes) => filePath;
+
     public abstract void CopyInfo(object info);
 
     public abstract Dictionary<string, JsonElement>? PasteInfo();
