@@ -69,6 +69,7 @@
 - **Шапка пакета — карточка** (скруглённая, на всю ширину до 1160 px). Поля разложены логично:
   - слева — сведения о пакете: дата создания, издатель, адрес для связи, язык;
   - справа — игровые параметры: сложность, ограничение, теги, контроль качества.
+- Рядом с полем «Дата создания» — кнопка **«Сегодня»**: одним нажатием ставит текущую дату в том же формате, что и у нового пакета (`дд.мм.гггг`); отменяется Ctrl+Z (`PackageViewModel.SetDateToday`).
 - Логотип — в квадратной скруглённой рамке, картинка обрезана по скруглению.
 - В пустых полях серые подсказки: «кто выпустил пакет», «например, 12+ или 18+», «сайт, почта или Telegram автора» (`Behaviors/Placeholder.cs`, работает и для редактируемых списков).
 - **Раунды** — заголовки акцентным цветом с отступом сверху, читаются как разделы.
@@ -153,7 +154,7 @@
 | `SIQuester.ViewModel/Services/GptAssistant.cs` | чат ChatGPT |
 | `SIQuester.ViewModel/UiText.cs` | новые тексты RU/EN |
 
-**Изменённые:** `App.xaml(.cs)`, `MainWindow.xaml(.cs)`, `View/DocumentView.xaml(.cs)`, `View/MenuDictionary.xaml`, `View/SelectTagsView.xaml`, `View/SettingsView.xaml`, `Behaviors/PlacementManager.cs`, `Behaviors/SmartMenuManager.cs`, `Helpers/SettingsHelper.cs`, а в ViewModel — `AnswersViewModel.cs`, `ContentItemsViewModel.cs`, `Helpers/QuestionExtensions.cs`, `Items/QuestionViewModel.cs`, `Items/ThemeViewModel.cs`, `LinksViewModel.cs`, `Model/AppSettings.cs`, `Model/Enums.cs`, `Services/QuestionsGenerator.cs`, `Workspaces/MainViewModel.cs`, `Workspaces/QDocument.cs`, `SIQuester.ViewModel.csproj` (+ пакет `Anthropic`).
+**Изменённые:** `App.xaml(.cs)`, `MainWindow.xaml(.cs)`, `View/DocumentView.xaml(.cs)`, `View/MenuDictionary.xaml`, `View/SelectTagsView.xaml`, `View/SettingsView.xaml`, `Behaviors/PlacementManager.cs`, `Behaviors/SmartMenuManager.cs`, `Helpers/SettingsHelper.cs`, а в ViewModel — `AnswersViewModel.cs`, `ContentItemsViewModel.cs`, `Helpers/QuestionExtensions.cs`, `Items/PackageViewModel.cs`, `Items/QuestionViewModel.cs`, `Items/ThemeViewModel.cs`, `LinksViewModel.cs`, `Model/AppSettings.cs`, `Model/Enums.cs`, `Services/QuestionsGenerator.cs`, `Workspaces/MainViewModel.cs`, `Workspaces/QDocument.cs`, `SIQuester.ViewModel.csproj` (+ пакет `Anthropic`).
 
 ## 16. Как проверить
 

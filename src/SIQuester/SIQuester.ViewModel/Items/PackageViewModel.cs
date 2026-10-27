@@ -111,6 +111,11 @@ public sealed class PackageViewModel : ItemViewModel<Package>
     /// </summary>
     public ICommand GenerateThemes { get; private set; }
 
+    /// <summary>
+    /// Sets the creation date to today (same format as for a new package).
+    /// </summary>
+    public ICommand SetDateToday { get; private set; }
+
     public PackageViewModel(Package package, QDocument document)
         : base(package)
     {
@@ -141,6 +146,7 @@ public sealed class PackageViewModel : ItemViewModel<Package>
         PasteInfo = new SimpleCommand(PasteInfo_Executed);
         
         GenerateThemes = new SimpleCommand(GenerateThemes_Executed);
+        SetDateToday = new SimpleCommand(_ => Model.Date = DateTime.Now.ToString("dd.MM.yyyy"));
     }
 
     private async void GenerateThemes_Executed(object? arg)

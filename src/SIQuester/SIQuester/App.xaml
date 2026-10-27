@@ -2795,6 +2795,41 @@
                             Height="25"
                             Padding="0,2,0,0" />
 
+                        <!-- "Today" puts the current date into the field -->
+                        <Button
+                            DockPanel.Dock="Right"
+                            Margin="8,0,0,0"
+                            VerticalAlignment="Center"
+                            Command="{Binding SetDateToday}"
+                            ToolTip="{x:Static vm:UiText.TodayTip}"
+                            Cursor="Hand"
+                            FocusVisualStyle="{x:Null}">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="Bg" CornerRadius="12" Padding="10,3" Background="{DynamicResource Ui.Hover}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock
+                                                Text="&#xE787;"
+                                                FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets"
+                                                FontSize="12"
+                                                Foreground="{DynamicResource Ui.Accent}"
+                                                VerticalAlignment="Center"
+                                                Margin="0,0,6,0" />
+                                            <TextBlock Text="{x:Static vm:UiText.Today}" FontSize="12" Foreground="{DynamicResource Ui.Text}" VerticalAlignment="Center" />
+                                        </StackPanel>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource Ui.AccentSoft}" />
+                                        </Trigger>
+                                        <Trigger Property="IsPressed" Value="True">
+                                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource Ui.Pressed}" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+
                         <TextBox
                             siq:ActivateManager.IsWatching="True"
                             Style="{StaticResource LightTextBox}"

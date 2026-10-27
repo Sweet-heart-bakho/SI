@@ -27,6 +27,10 @@ public static class UiText
     public static string TagsPlaceholder => T("Найти или добавить тег… (Enter — добавить)", "Find or add a tag… (Enter — add)");
     public static string TagsAdd => T("Добавить", "Add");
 
+    // Creation date
+    public static string Today => T("Сегодня", "Today");
+    public static string TodayTip => T("Поставить сегодняшнюю дату", "Set today's date");
+
     // Hints in empty package fields
     public static string HintRestriction => T("например, 12+ или 18+", "e.g. 12+ or 18+");
     public static string HintContact => T("сайт, почта или Telegram автора", "author's site, e-mail or Telegram");
