@@ -28,15 +28,7 @@ public static class UiText
     public static string TagsAdd => T("Добавить", "Add");
 
     // Media compression
-    public static string AutoCompressMedia => T(
-        "Автоматически сжимать большие файлы при добавлении: картинки до 1 МБ, звук до 5 МБ и видео до 10 МБ (звук и видео — если установлен FFmpeg)",
-        "Automatically compress large files when adding them: pictures to 1 MB, audio to 5 MB and video to 10 MB (audio and video need FFmpeg)");
-
-    public static string FfmpegMissing => T(
-        "Файл больше лимита SIGame. Картинки SIQuester сжимает сам, а для звука и видео нужна бесплатная программа FFmpeg.\n\n" +
-        "Установить: откройте «Терминал» и выполните\n    winget install Gyan.FFmpeg\nпосле этого перезапустите SIQuester. Файл добавлен без сжатия.",
-        "The file exceeds the SIGame limit. SIQuester compresses pictures itself; audio and video need the free FFmpeg tool.\n\n" +
-        "To install it, open Terminal and run\n    winget install Gyan.FFmpeg\nthen restart SIQuester. The file was added without compression.");
+    public static string AutoCompressMedia => T("Автоматически сжимать картинки больше 1 МБ при добавлении", "Automatically compress pictures larger than 1 MB when adding them");
 
     // Creation date
     public static string Today => T("Сегодня", "Today");

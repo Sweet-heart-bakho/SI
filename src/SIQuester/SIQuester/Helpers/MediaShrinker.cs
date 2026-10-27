@@ -1,18 +1,13 @@
 using SIPackages;
 using SIQuester.Model;
-using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Threading;
 
 namespace SIQuester.Helpers;
 
 /// <summary>
-/// Makes media files fit the SIGame size limits (picture 1 MB, audio 5 MB, video 10 MB).
-/// Pictures are handled with the built-in WPF codecs; audio and video need FFmpeg (ffmpeg.exe in PATH,
-/// next to the program, or installed with winget).
+/// Makes pictures fit the SIGame size limit (1 MB) with the built-in WPF codecs. Audio and video are not compressed.
 /// </summary>
 internal static class MediaShrinker
 {
@@ -22,8 +17,6 @@ internal static class MediaShrinker
     public static string? Shrink(string path, string collectionName, long maxBytes) => collectionName switch
     {
         CollectionNames.ImagesStorageName => ShrinkImage(path, maxBytes),
-        CollectionNames.VideoStorageName => ShrinkWithFfmpeg(path, maxBytes, isVideo: true),
-        CollectionNames.AudioStorageName => ShrinkWithFfmpeg(path, maxBytes, isVideo: false),
         _ => null
     };
 
@@ -137,160 +130,6 @@ internal static class MediaShrinker
         }
 
         return false;
-    }
-
-    // ----- Audio and video (FFmpeg) -----
-
-    private static bool _ffmpegHintShown;
-
-    /// <summary>
-    /// Re-encodes with FFmpeg to a bitrate that fits the limit (video: H.264 + AAC in MP4, up to 1280 px wide;
-    /// audio: MP3). The UI stays responsive while FFmpeg works.
-    /// </summary>
-    private static string? ShrinkWithFfmpeg(string path, long maxBytes, bool isVideo)
-    {
-        var ffmpeg = FindTool("ffmpeg.exe");
-
-        if (ffmpeg == null)
-        {
-            if (!_ffmpegHintShown)
-            {
-                _ffmpegHintShown = true;
-                ViewModel.PlatformSpecific.PlatformManager.Instance.Inform(ViewModel.UiText.FfmpegMissing, true);
-            }
-
-            return null;
-        }
-
-        var duration = GetDurationSeconds(path, ffmpeg);
-
-        if (duration is null or <= 0)
-        {
-            return null;
-        }
-
-        // 92 % of the limit for the streams, the rest for the container
-        var totalKbps = maxBytes * 8.0 / 1000.0 * 0.92 / duration.Value;
-        var audioKbps = isVideo ? Math.Min(96, Math.Max(48, totalKbps * 0.15)) : Math.Min(192, totalKbps);
-        var videoKbps = totalKbps - audioKbps;
-
-        if (audioKbps < 32 || (isVideo && videoKbps < 100))
-        {
-            return null; // too long to fit with acceptable quality
-        }
-
-        var output = CreateOutputPath(path, isVideo ? ".mp4" : ".mp3");
-        var inv = CultureInfo.InvariantCulture;
-
-        var arguments = isVideo
-            ? $"-y -i \"{path}\" -c:v libx264 -preset medium -b:v {videoKbps.ToString("0", inv)}k -maxrate {videoKbps.ToString("0", inv)}k -bufsize {(videoKbps * 2).ToString("0", inv)}k " +
-              $"-vf \"scale='min(1280,iw)':-2\" -c:a aac -b:a {audioKbps.ToString("0", inv)}k -movflags +faststart \"{output}\""
-            : $"-y -i \"{path}\" -vn -c:a libmp3lame -b:a {audioKbps.ToString("0", inv)}k \"{output}\"";
-
-        if (!RunKeepingUiAlive(ffmpeg, arguments) || !File.Exists(output))
-        {
-            return null;
-        }
-
-        return new FileInfo(output).Length <= maxBytes ? output : null;
-    }
-
-    private static double? GetDurationSeconds(string path, string ffmpeg)
-    {
-        var ffprobe = Path.Combine(Path.GetDirectoryName(ffmpeg) ?? "", "ffprobe.exe");
-
-        if (!File.Exists(ffprobe))
-        {
-            ffprobe = FindTool("ffprobe.exe") ?? "";
-        }
-
-        if (!File.Exists(ffprobe))
-        {
-            return null;
-        }
-
-        try
-        {
-            using var process = Process.Start(new ProcessStartInfo(ffprobe, $"-v error -show_entries format=duration -of csv=p=0 \"{path}\"")
-            {
-                CreateNoWindow = true,
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-            });
-
-            if (process == null)
-            {
-                return null;
-            }
-
-            var text = process.StandardOutput.ReadToEnd();
-            process.WaitForExit(15_000);
-
-            return double.TryParse(text.Trim(), NumberStyles.Float, CultureInfo.InvariantCulture, out var seconds) ? seconds : null;
-        }
-        catch
-        {
-            return null;
-        }
-    }
-
-    /// <summary>
-    /// Runs a tool and pumps the UI message loop meanwhile (progress dialog shown), so the window does not freeze.
-    /// </summary>
-    private static bool RunKeepingUiAlive(string exe, string arguments)
-    {
-        try
-        {
-            using var progress = ViewModel.PlatformSpecific.PlatformManager.Instance.ShowProgressDialog();
-
-            using var process = new Process
-            {
-                StartInfo = new ProcessStartInfo(exe, arguments)
-                {
-                    CreateNoWindow = true,
-                    UseShellExecute = false,
-                    RedirectStandardError = true,
-                    RedirectStandardOutput = true,
-                },
-                EnableRaisingEvents = true,
-            };
-
-            var frame = new DispatcherFrame();
-            process.Exited += (_, _) => frame.Continue = false;
-
-            process.Start();
-            process.BeginErrorReadLine(); // FFmpeg writes progress to stderr: read it so the pipe never blocks
-            process.BeginOutputReadLine();
-
-            if (!process.HasExited)
-            {
-                Dispatcher.PushFrame(frame);
-            }
-
-            process.WaitForExit();
-            return process.ExitCode == 0;
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
-    /// <summary>
-    /// Looks for a tool next to the program, in PATH and in the winget links folder.
-    /// </summary>
-    private static string? FindTool(string fileName)
-    {
-        var candidates = new List<string> { Path.Combine(AppContext.BaseDirectory, fileName) };
-
-        foreach (var dir in (Environment.GetEnvironmentVariable("PATH") ?? "").Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries))
-        {
-            candidates.Add(Path.Combine(dir.Trim(), fileName));
-        }
-
-        candidates.Add(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Microsoft", "WinGet", "Links", fileName));
-
-        return candidates.FirstOrDefault(File.Exists);
     }
 
     private static string CreateOutputPath(string source, string extension)
