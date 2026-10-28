@@ -160,6 +160,8 @@ public sealed class AnswerListEditor : StackPanel
         field.TextChanged += Field_TextChanged;
         field.GotKeyboardFocus += (_, _) => answers.CurrentPosition = (int)field.Tag;
         field.PreviewKeyDown += Field_PreviewKeyDown;
+        CommandManager.AddPreviewCanExecuteHandler(field, Field_PreviewCanExecute);
+        CommandManager.AddPreviewExecutedHandler(field, Field_PreviewExecuted);
 
         _fields.Add(field);
         row.Children.Add(field);
@@ -209,6 +211,51 @@ public sealed class AnswerListEditor : StackPanel
     }
 
     // Enter adds a new answer below; Backspace in an empty field removes it
+    /// <summary>
+    /// A picture or a file in the clipboard (without text) is pasted as answer media.
+    /// The text field would otherwise take Ctrl+V itself and do nothing with it.
+    /// </summary>
+    /// <summary>
+    /// Whether the clipboard holds a picture or files and no text.
+    /// </summary>
+    private static bool ClipboardHasOnlyMedia()
+    {
+        try
+        {
+            return !Clipboard.ContainsText() && (Clipboard.ContainsImage() || Clipboard.ContainsFileDropList());
+        }
+        catch
+        {
+            return false; // clipboard is busy: let the text field handle it
+        }
+    }
+
+    /// <summary>
+    /// A text field says "nothing to paste" for a picture, so Ctrl+V would go nowhere: allow it.
+    /// </summary>
+    private static void Field_PreviewCanExecute(object sender, CanExecuteRoutedEventArgs e)
+    {
+        if (e.Command == ApplicationCommands.Paste && ClipboardHasOnlyMedia())
+        {
+            e.CanExecute = true;
+            e.Handled = true;
+        }
+    }
+
+    private static void Field_PreviewExecuted(object sender, ExecutedRoutedEventArgs e)
+    {
+        if (e.Command != ApplicationCommands.Paste || !ClipboardHasOnlyMedia()
+            || Application.Current.MainWindow is not IInputElement window)
+        {
+            return;
+        }
+
+        e.Handled = true;
+
+        // The window's paste handler puts media into the answer that is being edited
+        ApplicationCommands.Paste.Execute(null, window);
+    }
+
     private void Field_PreviewKeyDown(object sender, KeyEventArgs e)
     {
         var field = (TextBox)sender;

@@ -60,9 +60,24 @@ public static class Placeholder
 
         void Refresh(object? s, EventArgs a) => adorner.InvalidateVisual();
 
+        void RefreshVisibility(object? s, DependencyPropertyChangedEventArgs a) => adorner.InvalidateVisual();
+
+        // A collapsed theme or a removed item must not leave the hint hanging in the old place
+        void Detach(object? s, RoutedEventArgs a)
+        {
+            textBox.TextChanged -= Refresh;
+            textBox.GotKeyboardFocus -= Refresh;
+            textBox.LostKeyboardFocus -= Refresh;
+            textBox.IsVisibleChanged -= RefreshVisibility;
+            textBox.Unloaded -= Detach;
+            layer.Remove(adorner);
+        }
+
         textBox.TextChanged += Refresh;
         textBox.GotKeyboardFocus += Refresh;
         textBox.LostKeyboardFocus += Refresh;
+        textBox.IsVisibleChanged += RefreshVisibility;
+        textBox.Unloaded += Detach;
     }
 
     private sealed class PlaceholderAdorner : Adorner
@@ -79,7 +94,7 @@ public static class Placeholder
 
         protected override void OnRender(DrawingContext drawingContext)
         {
-            if (_textBox.Text.Length > 0 || string.IsNullOrEmpty(_text))
+            if (_textBox.Text.Length > 0 || string.IsNullOrEmpty(_text) || !_textBox.IsVisible)
             {
                 return;
             }
