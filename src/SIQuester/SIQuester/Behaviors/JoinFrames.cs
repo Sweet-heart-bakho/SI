@@ -9,6 +9,8 @@ namespace SIQuester.Behaviors;
 /// <summary>
 /// Draws one rounded frame around content items that are joined to play together
 /// ("join with next"), so the group is visible at a glance.
+/// The frame follows the outline of the joined items only: items laid out side by side
+/// that are not in the group stay outside of it.
 /// Usage on the content ListBox: <c>lb:JoinFrames.IsEnabled="True"</c>.
 /// </summary>
 public static class JoinFrames
@@ -46,10 +48,18 @@ public static class JoinFrames
 
     private sealed class FramesAdorner : Adorner
     {
-        private const double Inflate = 3;
+        /// <summary>
+        /// How far the frame goes around each item. Also closes the small gaps between neighbouring items,
+        /// so a group becomes one shape.
+        /// </summary>
+        private const double Inflate = 4;
 
         private readonly ItemsControl _list;
-        private readonly List<Rect> _frames = new();
+
+        /// <summary>
+        /// Item bounds of every group.
+        /// </summary>
+        private List<List<Rect>> _groups = new();
 
         public FramesAdorner(ItemsControl list) : base(list)
         {
@@ -59,20 +69,22 @@ public static class JoinFrames
 
         public void Refresh()
         {
-            var frames = ComputeFrames();
+            var groups = ComputeGroups();
 
-            if (!frames.SequenceEqual(_frames))
+            if (!SameGroups(groups, _groups))
             {
-                _frames.Clear();
-                _frames.AddRange(frames);
+                _groups = groups;
                 InvalidateVisual();
             }
         }
 
-        private List<Rect> ComputeFrames()
+        private static bool SameGroups(List<List<Rect>> a, List<List<Rect>> b) =>
+            a.Count == b.Count && a.Zip(b).All(pair => pair.First.SequenceEqual(pair.Second));
+
+        private List<List<Rect>> ComputeGroups()
         {
-            var result = new List<Rect>();
-            Rect? chain = null;
+            var result = new List<List<Rect>>();
+            List<Rect>? chain = null;
 
             for (var i = 0; i < _list.Items.Count; i++)
             {
@@ -87,23 +99,18 @@ public static class JoinFrames
                 var bounds = new Rect(container.TranslatePoint(new Point(0, 0), _list), container.RenderSize);
                 var joinsNext = !item.Model.WaitForFinish && i < _list.Items.Count - 1;
 
-                if (chain.HasValue)
+                if (chain != null)
                 {
-                    // Continue the current group with this item
-                    var union = chain.Value;
-                    union.Union(bounds);
-                    chain = union;
+                    chain.Add(bounds); // continue the current group with this item
                 }
                 else if (joinsNext)
                 {
-                    chain = bounds;
+                    chain = new List<Rect> { bounds };
                 }
 
-                if (!joinsNext && chain.HasValue)
+                if (!joinsNext && chain != null)
                 {
-                    var frame = chain.Value;
-                    frame.Inflate(Inflate, Inflate);
-                    result.Add(frame);
+                    result.Add(chain);
                     chain = null;
                 }
             }
@@ -111,9 +118,31 @@ public static class JoinFrames
             return result;
         }
 
+        /// <summary>
+        /// Outline of a group: union of the (slightly enlarged, rounded) item rectangles.
+        /// </summary>
+        private static Geometry BuildOutline(List<Rect> items)
+        {
+            Geometry outline = Geometry.Empty;
+
+            foreach (var rect in items)
+            {
+                var r = rect;
+                r.Inflate(Inflate, Inflate);
+                var piece = new RectangleGeometry(r, 6, 6);
+
+                outline = outline.IsEmpty()
+                    ? piece
+                    : Geometry.Combine(outline, piece, GeometryCombineMode.Union, null);
+            }
+
+            outline.Freeze();
+            return outline;
+        }
+
         protected override void OnRender(DrawingContext drawingContext)
         {
-            if (_frames.Count == 0)
+            if (_groups.Count == 0)
             {
                 return;
             }
@@ -123,12 +152,12 @@ public static class JoinFrames
             var fill = new SolidColorBrush(Color.FromArgb(0x14, accent.Color.R, accent.Color.G, accent.Color.B));
             fill.Freeze();
 
-            var pen = new Pen(accent, 1.5) { DashStyle = new DashStyle(new double[] { 4, 2 }, 0) };
+            var pen = new Pen(accent, 1.5) { DashStyle = new DashStyle(new double[] { 4, 2 }, 0), LineJoin = PenLineJoin.Round };
             pen.Freeze();
 
-            foreach (var frame in _frames)
+            foreach (var group in _groups)
             {
-                drawingContext.DrawRoundedRectangle(fill, pen, frame, 6, 6);
+                drawingContext.DrawGeometry(fill, pen, BuildOutline(group));
             }
         }
     }
