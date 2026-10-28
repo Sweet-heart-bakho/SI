@@ -342,6 +342,7 @@
                                 <ScrollViewer
                                     Template="{StaticResource QTextBoxScrollViewerTemplate}"
                                     x:Name="PART_ContentHost"
+                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                                     Focusable="false"
                                     HorizontalScrollBarVisibility="Disabled"
                                     VerticalScrollBarVisibility="Hidden" />                                
@@ -3430,7 +3431,9 @@
                             Style="{StaticResource CommonTextBox}"
                             TabIndex="2"
                             Padding="0,2"
-                            VerticalAlignment="Center" />
+                            VerticalAlignment="Stretch"
+                            VerticalContentAlignment="Center"
+                            lb:Placeholder.Text="{x:Static vm:UiText.HintContentText}" />
                     </DataTemplate>
                 </siqcv:TemplateConverter.DefaultTemplate>
 

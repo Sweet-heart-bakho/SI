@@ -48,6 +48,9 @@ public static class UiText
         "Table: a board of themes × prices, players pick questions and press the button (usually 5 questions per theme).\n" +
         "Theme list: players remove themes in turn; on the last one everyone bets and writes an answer (1 question per theme).");
 
+    // Text item of a question
+    public static string HintContentText => T("Введите текст…", "Type the text…");
+
     // Answer fields
     public static string AddAnswer => T("Добавить ответ (Enter)", "Add answer (Enter)");
     public static string RemoveAnswer => T("Удалить ответ", "Remove answer");
