@@ -270,8 +270,9 @@
             </Border>
         </Grid>
 
-        <!-- Floating button -->
-        <Button HorizontalAlignment="Right" Command="{Binding Toggle}" ToolTip="{x:Static vm:UiText.ChatButton}" Cursor="Hand" FocusVisualStyle="{x:Null}">
+        <!-- Floating button with a small "hide" cross in its corner -->
+        <Grid HorizontalAlignment="Right">
+        <Button Margin="0,8,8,0" Command="{Binding Toggle}" ToolTip="{x:Static vm:UiText.ChatButton}" Cursor="Hand" FocusVisualStyle="{x:Null}">
             <Button.Template>
                 <ControlTemplate TargetType="Button">
                     <Grid>
@@ -295,5 +296,38 @@
                 </ControlTemplate>
             </Button.Template>
         </Button>
+
+        <Button
+            HorizontalAlignment="Right"
+            VerticalAlignment="Top"
+            Click="Hide_Click"
+            ToolTip="{x:Static vm:UiText.ChatHide}"
+            Cursor="Hand"
+            Focusable="False">
+            <Button.Template>
+                <ControlTemplate TargetType="Button">
+                    <Border
+                        x:Name="Bg"
+                        Width="20"
+                        Height="20"
+                        CornerRadius="10"
+                        BorderThickness="1"
+                        BorderBrush="{DynamicResource Ui.CardStroke}"
+                        Background="{DynamicResource Ui.Card}">
+                        <TextBlock
+                            Style="{StaticResource Glyph}"
+                            Text="&#xE711;"
+                            FontSize="9"
+                            Foreground="{DynamicResource Ui.Text}" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource Ui.Hover}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
+        </Grid>
     </StackPanel>
 </UserControl>

@@ -239,6 +239,8 @@
             <TextBlock Style="{StaticResource Header}" Text="{x:Static vm:UiText.AiProviderHeader}" />
 
             <!-- Who works in the assistant chat and generates questions -->
+            <CheckBox Content="{x:Static vm:UiText.ShowAssistant}" IsChecked="{Binding Model.ShowAssistant}" Margin="0,0,0,12" />
+
             <TextBlock Text="{x:Static vm:UiText.AiProviderLabel}" Margin="0,0,0,4" />
             <RadioButton GroupName="AiProvider" Margin="0,4,0,0" Content="{x:Static vm:UiText.AiProviderClaude}"
                          IsChecked="{Binding Model.AiProvider, Converter={StaticResource EnumEquals}, ConverterParameter={x:Static m:AiProvider.Claude}}" />

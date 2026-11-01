@@ -524,6 +524,8 @@
         ItemContainerStyle="{StaticResource TabItemStyle1}" />
 
         <!-- Claude assistant: floating chat in the bottom-right corner -->
-        <siq:AssistantChatView DataContext="{Binding Assistant}" />
+        <siq:AssistantChatView
+            DataContext="{Binding Assistant}"
+            Visibility="{Binding ShowAssistant, Source={x:Static m:AppSettings.Default}, Converter={StaticResource VisibilityConverter}}" />
     </Grid>
 </metro:MetroWindow>

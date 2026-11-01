@@ -30,6 +30,10 @@ public static class UiText
     // Media compression
     public static string AutoCompressMedia => T("Автоматически сжимать картинки больше 1 МБ при добавлении", "Automatically compress pictures larger than 1 MB when adding them");
 
+    // New package page
+    public static string NewPackageTitle => T("Новый пакет", "New pack");
+    public static string NewPackageParameters => T("Пакет", "Pack");
+
     // Creation date
     public static string Today => T("Сегодня", "Today");
     public static string TodayTip => T("Поставить сегодняшнюю дату", "Set today's date");
@@ -91,6 +95,9 @@ public static class UiText
     public static string ChatNoKey => T(
         "Чтобы я мог отвечать, укажите ключ Claude API: Параметры → Claude (Anthropic) → Claude API key.",
         "To let me answer, set the Claude API key: Settings → Claude (Anthropic) → Claude API key.");
+
+    public static string ChatHide => T("Скрыть помощника (вернуть: Параметры → ИИ-помощник)", "Hide the assistant (bring back: Settings → AI assistant)");
+    public static string ShowAssistant => T("Показывать кнопку помощника в правом нижнем углу", "Show the assistant button in the bottom-right corner");
 
     public static string ChatTitleTail => T(" — помощник", " — assistant");
     public static string ChatSubtitleTail => T(" · видит открытую тему и вопрос", " · sees the open theme and question");

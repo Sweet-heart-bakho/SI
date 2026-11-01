@@ -21,6 +21,19 @@ public partial class AssistantChatView : UserControl
         DataContextChanged += OnDataContextChanged;
     }
 
+    /// <summary>
+    /// Hides the assistant; it comes back with the checkbox in Settings → AI assistant.
+    /// </summary>
+    private void Hide_Click(object sender, RoutedEventArgs e)
+    {
+        if (_viewModel?.IsOpen == true)
+        {
+            _viewModel.Toggle.Execute(null);
+        }
+
+        Model.AppSettings.Default.ShowAssistant = false;
+    }
+
     private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
         if (_viewModel != null)

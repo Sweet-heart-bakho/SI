@@ -644,6 +644,25 @@ public sealed class AppSettings : INotifyPropertyChanged
         }
     }
 
+    private bool _showAssistant = true;
+
+    /// <summary>
+    /// Show the AI assistant button in the bottom-right corner of the main window.
+    /// </summary>
+    [DefaultValue(true)]
+    public bool ShowAssistant
+    {
+        get => _showAssistant;
+        set
+        {
+            if (_showAssistant != value)
+            {
+                _showAssistant = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
     private AiProvider _aiProvider = AiProvider.Claude;
 
     /// <summary>
@@ -801,6 +820,7 @@ public sealed class AppSettings : INotifyPropertyChanged
         FontSize = defaultSettings.FontSize;
         AiProvider = defaultSettings.AiProvider;
         AutoCompressMedia = defaultSettings.AutoCompressMedia;
+        ShowAssistant = defaultSettings.ShowAssistant;
         QuestionBase = defaultSettings.QuestionBase;
         SearchForUpdates = defaultSettings.SearchForUpdates;
         RemoveLinks = defaultSettings.RemoveLinks;
