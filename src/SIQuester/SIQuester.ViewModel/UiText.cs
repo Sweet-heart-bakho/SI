@@ -30,6 +30,13 @@ public static class UiText
     // Media compression
     public static string AutoCompressMedia => T("Автоматически сжимать картинки больше 1 МБ при добавлении", "Automatically compress pictures larger than 1 MB when adding them");
 
+    // Start page
+    public static string StartSubtitle => T("Редактор пакетов вопросов для SIGame", "Question pack editor for SIGame");
+    public static string StartNew => T("Новый пакет", "New pack");
+    public static string StartNewHint => T("Выбрать шаблон и начать", "Pick a template and start");
+    public static string StartOpen => T("Открыть пакет", "Open a pack");
+    public static string StartOpenHint => T("Файл .siq с компьютера", "A .siq file from your computer");
+
     // New package page
     public static string NewPackageTitle => T("Новый пакет", "New pack");
     public static string NewPackageParameters => T("Пакет", "Pack");

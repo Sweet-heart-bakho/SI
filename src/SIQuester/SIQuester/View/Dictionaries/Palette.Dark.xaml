@@ -41,4 +41,45 @@
     <!-- Chat -->
     <SolidColorBrush x:Key="Ui.ChatBubble" Color="#FF383838" />
     <SolidColorBrush x:Key="Ui.ChatInput" Color="#FF1F1F1F" />
+
+    <!-- Fluent accent: the app blue instead of the Windows accent color (check boxes, radio buttons, selection...) -->
+    <Color x:Key="SystemAccentColor">#FF0F6CBD</Color>
+    <Color x:Key="SystemAccentColorLight1">#FF2886DE</Color>
+    <Color x:Key="SystemAccentColorLight2">#FF4CA0E0</Color>
+    <Color x:Key="SystemAccentColorLight3">#FF62ABF5</Color>
+    <Color x:Key="SystemAccentColorDark1">#FF115EA3</Color>
+    <Color x:Key="SystemAccentColorDark2">#FF0F548C</Color>
+    <Color x:Key="SystemAccentColorDark3">#FF0C3B5E</Color>
+    <SolidColorBrush x:Key="AccentFillColorDefaultBrush" Color="#FF4CA0E0" />
+    <SolidColorBrush x:Key="AccentFillColorSecondaryBrush" Color="#E64CA0E0" />
+    <SolidColorBrush x:Key="AccentFillColorTertiaryBrush" Color="#CC4CA0E0" />
+    <SolidColorBrush x:Key="AccentTextFillColorPrimaryBrush" Color="#FF62ABF5" />
+    <SolidColorBrush x:Key="AccentTextFillColorSecondaryBrush" Color="#FF62ABF5" />
+    <SolidColorBrush x:Key="AccentTextFillColorTertiaryBrush" Color="#FF4CA0E0" />
+
+    <!-- Fluent control colors that use the accent (the theme takes them from Windows otherwise) -->
+    <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillChecked" Color="#FF4CA0E0" />
+    <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillCheckedPointerOver" Color="#E64CA0E0" />
+    <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillCheckedPressed" Color="#CC4CA0E0" />
+    <SolidColorBrush x:Key="CheckBoxCheckBackgroundStrokeChecked" Color="#FF4CA0E0" />
+    <SolidColorBrush x:Key="CheckBoxCheckBackgroundStrokeCheckedPointerOver" Color="#E64CA0E0" />
+    <SolidColorBrush x:Key="CheckBoxCheckBackgroundStrokeCheckedPressed" Color="#CC4CA0E0" />
+    <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillIndeterminate" Color="#FF4CA0E0" />
+    <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillIndeterminatePointerOver" Color="#E64CA0E0" />
+    <SolidColorBrush x:Key="CheckBoxCheckBackgroundFillIndeterminatePressed" Color="#CC4CA0E0" />
+    <SolidColorBrush x:Key="RadioButtonOuterEllipseCheckedFill" Color="#FF4CA0E0" />
+    <SolidColorBrush x:Key="RadioButtonOuterEllipseCheckedStroke" Color="#FF4CA0E0" />
+    <SolidColorBrush x:Key="RadioButtonOuterEllipseCheckedStrokePointerOver" Color="#E64CA0E0" />
+    <SolidColorBrush x:Key="RadioButtonCheckOuterEllipseCheckedFillPointerOver" Color="#E64CA0E0" />
+    <SolidColorBrush x:Key="RadioButtonCheckOuterEllipseCheckedFillPressed" Color="#CC4CA0E0" />
+    <SolidColorBrush x:Key="RadioButtonCheckOuterEllipseCheckedStrokePressed" Color="#CC4CA0E0" />
+    <SolidColorBrush x:Key="ToggleButtonBackgroundChecked" Color="#FF4CA0E0" />
+    <SolidColorBrush x:Key="ToggleButtonBackgroundCheckedPointerOver" Color="#E64CA0E0" />
+    <SolidColorBrush x:Key="ToggleButtonBackgroundCheckedPressed" Color="#CC4CA0E0" />
+    <SolidColorBrush x:Key="ComboBoxItemPillFillBrush" Color="#FF4CA0E0" />
+    <SolidColorBrush x:Key="ListViewItemPillFillBrush" Color="#FF4CA0E0" />
+    <SolidColorBrush x:Key="SliderTrackFill" Color="#FF4CA0E0" />
+    <SolidColorBrush x:Key="SliderTrackFillPointerOver" Color="#E64CA0E0" />
+    <SolidColorBrush x:Key="ProgressBarForeground" Color="#FF4CA0E0" />
+    <SolidColorBrush x:Key="TextControlFocusedBorderBrush" Color="#FF4CA0E0" />
 </ResourceDictionary>
