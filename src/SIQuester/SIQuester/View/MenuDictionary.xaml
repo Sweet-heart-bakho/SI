@@ -44,11 +44,11 @@
                     Width="22"
                     Height="22"
                     Visibility="Hidden"
-                    Background="#E6EFF4"
-                    BorderBrush="#CDD3E6"
+                    Background="{DynamicResource Ui.AccentSoft}"
+                    BorderBrush="{DynamicResource Ui.Accent}"
                     BorderThickness="1"
                     CornerRadius="3">
-                    <Path x:Name="Glyph" Fill="#0C12A1" FlowDirection="LeftToRight" Width="9" Height="11" Data="{StaticResource Checkmark}" />
+                    <Path x:Name="Glyph" Fill="{DynamicResource Ui.Accent}" FlowDirection="LeftToRight" Width="9" Height="11" Data="{StaticResource Checkmark}" />
                 </Border>
                 
                 <ContentPresenter
@@ -205,11 +205,11 @@
     </Style>
     
     <ControlTemplate x:Key="{ComponentResourceKey ResourceId=SubmenuContent, TypeInTargetAssembly={x:Type FrameworkElement}}" TargetType="{x:Type ContentControl}">
-        <Border Background="#F5F5F5" BorderBrush="#FF959595" BorderThickness="1">
+        <Border Background="{DynamicResource FlyoutBackground}" BorderBrush="{DynamicResource Ui.CardStroke}" BorderThickness="1" CornerRadius="8">
             <Grid>
-                <Rectangle Fill="#F1F1F1" RadiusX="2" RadiusY="2" HorizontalAlignment="Left" Margin="2" Width="28"/>
-                <Rectangle Fill="#E2E3E3" HorizontalAlignment="Left" Margin="30,2,0,2" Width="1"/>
-                <Rectangle Fill="White" HorizontalAlignment="Left" Margin="31,2,0,2" Width="1"/>
+                <Rectangle Fill="Transparent" RadiusX="2" RadiusY="2" HorizontalAlignment="Left" Margin="2" Width="28"/>
+                <Rectangle Fill="Transparent" HorizontalAlignment="Left" Margin="30,2,0,2" Width="1"/>
+                <Rectangle Fill="Transparent" HorizontalAlignment="Left" Margin="31,2,0,2" Width="1"/>
                 <ContentPresenter Margin="1,0" Grid.ColumnSpan="2"/>
             </Grid>
         </Border>
@@ -448,12 +448,12 @@
                     Width="22"
                     Height="22"
                     Visibility="Hidden"
-                    Background="#E6EFF4"
-                    BorderBrush="#CDD3E6"
+                    Background="{DynamicResource Ui.AccentSoft}"
+                    BorderBrush="{DynamicResource Ui.Accent}"
                     BorderThickness="1"
                     CornerRadius="3">
                     
-                    <Path x:Name="Glyph" Fill="#0C12A1" FlowDirection="LeftToRight" Width="9" Height="11" Data="{StaticResource Checkmark}" />
+                    <Path x:Name="Glyph" Fill="{DynamicResource Ui.Accent}" FlowDirection="LeftToRight" Width="9" Height="11" Data="{StaticResource Checkmark}" />
                     
                 </Border>
                 

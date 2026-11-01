@@ -460,7 +460,7 @@
                                     PopupAnimation="{DynamicResource {x:Static SystemParameters.MenuPopupAnimationKey}}"
                                     VerticalOffset="-1"
                                     Focusable="false">
-                                    <Border Background="#F5F5F5" BorderBrush="#FF959595" BorderThickness="1">
+                                    <Border Background="{DynamicResource FlyoutBackground}" BorderBrush="{DynamicResource Ui.CardStroke}" BorderThickness="1" CornerRadius="8">
                                         <ScrollViewer
                                             Style="{DynamicResource {ComponentResourceKey ResourceId=MenuScrollViewer, TypeInTargetAssembly={x:Type FrameworkElement}}}"
                                             CanContentScroll="true">
@@ -1141,7 +1141,7 @@
                 <Setter Property="ContentTemplate">
                     <Setter.Value>
                         <DataTemplate>
-                            <Path Data="M0,0L11.6,6.7L0,13.4z" Fill="#555555" />
+                            <Path Data="M0,0L11.6,6.7L0,13.4z" Fill="{DynamicResource Ui.Glyph}" />
                         </DataTemplate>
                     </Setter.Value>
                 </Setter>
@@ -1152,7 +1152,7 @@
                         <Setter Property="ContentTemplate">
                             <Setter.Value>
                                 <DataTemplate>
-                                    <Path Data="M0,0L3,0L3,12L0,12zM6,0L9,0L9,12L6,12z" Fill="#555555" />
+                                    <Path Data="M0,0L3,0L3,12L0,12zM6,0L9,0L9,12L6,12z" Fill="{DynamicResource Ui.Glyph}" />
                                 </DataTemplate>
                             </Setter.Value>
                         </Setter>
@@ -1661,7 +1661,7 @@
                                                                     Width="20"
                                                                     Height="20"
                                                                     Stretch="Uniform"
-                                                                    Fill="Black"
+                                                                    Fill="{DynamicResource Ui.Glyph}"
                                                                     Data="{Binding Source={StaticResource app_language},Path=Data}" />
                                                             </DataTemplate>
                                                         </Button.ContentTemplate>
@@ -2452,7 +2452,7 @@
                                     Cursor="Hand"
                                     HorizontalAlignment="Left"
                                     Padding="2">
-                                    <Path Stretch="Uniform" Fill="#555555" Margin="3" Data="{Binding Source={StaticResource app_edit},Path=Data}" />
+                                    <Path Stretch="Uniform" Fill="{DynamicResource Ui.Glyph}" Margin="3" Data="{Binding Source={StaticResource app_edit},Path=Data}" />
                                 </Button>
 
                                 <TextBox
