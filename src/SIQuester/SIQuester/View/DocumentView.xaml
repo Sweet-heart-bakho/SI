@@ -29,6 +29,20 @@
                 <ResourceDictionary Source="MenuDictionary.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
+            <!-- Side panel tab icon: Fluent glyph, accent color on the selected tab -->
+            <Style x:Key="SideTabGlyph" TargetType="TextBlock">
+                <Setter Property="FontFamily" Value="Segoe Fluent Icons, Segoe MDL2 Assets" />
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="HorizontalAlignment" Value="Center" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="Foreground" Value="{DynamicResource Ui.Glyph}" />
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=TabItem}}" Value="True">
+                        <Setter Property="Foreground" Value="{DynamicResource Ui.Accent}" />
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+
             <siqcv:TemplateConverter x:Key="ViewSelector">
                 <siqcv:TemplateConverter.DefaultTemplate>
                     <DataTemplate>
@@ -799,71 +813,43 @@
 
                                                     <TabItem ToolTip="{x:Static lp:Resources.Authors}" Content="{Binding Authors}">
                                                         <TabItem.Header>
-                                                            <Path
-                                                                Stretch="Uniform"
-                                                                Fill="{DynamicResource Ui.Glyph}"
-                                                                Margin="5,3"
-                                                                Data="{Binding Source={StaticResource app_author},Path=Data}" />
+                                                            <TextBlock Style="{StaticResource SideTabGlyph}" Text="&#xE77B;" />
                                                         </TabItem.Header>
                                                     </TabItem>
 
                                                     <TabItem ToolTip="{x:Static lp:Resources.Sources}" Content="{Binding Sources}">
                                                         <TabItem.Header>
-                                                            <Path
-                                                                Stretch="Uniform"
-                                                                Fill="{DynamicResource Ui.Glyph}"
-                                                                Margin="3"
-                                                                Data="{Binding Source={StaticResource app_source},Path=Data}" />
+                                                            <TextBlock Style="{StaticResource SideTabGlyph}" Text="&#xE736;" />
                                                         </TabItem.Header>
                                                     </TabItem>
 
                                                     <TabItem ToolTip="{x:Static lp:Resources.Images}" Content="{Binding Images}">
                                                         <TabItem.Header>
-                                                            <Path
-                                                                Stretch="Uniform"
-                                                                Fill="{DynamicResource Ui.Glyph}"
-                                                                Margin="4"
-                                                                Data="{Binding Source={StaticResource app_image},Path=Data}" />
+                                                            <TextBlock Style="{StaticResource SideTabGlyph}" Text="&#xEB9F;" />
                                                         </TabItem.Header>
                                                     </TabItem>
 
                                                     <TabItem ToolTip="{x:Static lp:Resources.Audio}" Content="{Binding Audio}">
                                                         <TabItem.Header>
-                                                            <Path
-                                                                Stretch="Uniform"
-                                                                Fill="{DynamicResource Ui.Glyph}"
-                                                                Margin="4,3"
-                                                                Data="{Binding Source={StaticResource app_audio},Path=Data}" />
+                                                            <TextBlock Style="{StaticResource SideTabGlyph}" Text="&#xE8D6;" />
                                                         </TabItem.Header>
                                                     </TabItem>
 
                                                     <TabItem ToolTip="{x:Static lp:Resources.Video}" Content="{Binding Video}">
                                                         <TabItem.Header>
-                                                            <Path
-                                                                Stretch="Uniform"
-                                                                Fill="{DynamicResource Ui.Glyph}"
-                                                                Margin="2,4"
-                                                                Data="{Binding Source={StaticResource app_video},Path=Data}" />
+                                                            <TextBlock Style="{StaticResource SideTabGlyph}" Text="&#xE714;" />
                                                         </TabItem.Header>
                                                     </TabItem>
 
                                                     <TabItem ToolTip="HTML" Content="{Binding Html}">
                                                         <TabItem.Header>
-                                                            <Path
-                                                                Stretch="Uniform"
-                                                                Fill="{DynamicResource Ui.Glyph}"
-                                                                Margin="2,4"
-                                                                Data="{Binding Source={StaticResource app_html},Path=Data}" />
+                                                            <TextBlock Style="{StaticResource SideTabGlyph}" Text="&#xE774;" />
                                                         </TabItem.Header>
                                                     </TabItem>
 
                                                     <TabItem ToolTip="{x:Static vmp:Resources.Statistic}" Content="{Binding Statistics}" Tag="last">
                                                         <TabItem.Header>
-                                                            <Path
-                                                                Stretch="Uniform"
-                                                                Fill="{DynamicResource Ui.Glyph}"
-                                                                Margin="3"
-                                                                Data="{Binding Source={StaticResource app_stat},Path=Data}" />
+                                                            <TextBlock Style="{StaticResource SideTabGlyph}" Text="&#xE9D2;" />
                                                         </TabItem.Header>
                                                     </TabItem>
                                                 </TabControl>
@@ -875,7 +861,7 @@
                                                     VerticalAlignment="Top"
                                                     Margin="0,10,5,5"
                                                     lb:ToggleBehavior.Target="{Binding ElementName=bSidebar}">
-                                                    <Path Fill="#00FFFFFF" Stroke="#FF989898" StrokeThickness="2" Data="M0,0L10,10M0,10L10,0" />
+                                                    <TextBlock Style="{StaticResource SideTabGlyph}" Text="&#xE711;" FontSize="12" Margin="2" />
                                                 </Button>
                                             </Grid>
                                         </Border>
