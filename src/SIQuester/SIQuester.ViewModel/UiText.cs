@@ -35,6 +35,16 @@ public static class UiText
     public static string MediaAllFiles => T("Все файлы", "All files");
     public static string MediaSaveError => T("Не удалось сохранить файл", "Could not save the file");
 
+    // Statistics panel
+    public static string StatsRounds => T("раунды", "rounds");
+    public static string StatsThemes => T("темы", "themes");
+    public static string StatsQuestions => T("вопросы", "questions");
+    public static string StatsChecks => T("Что проверять", "What to check");
+    public static string StatsWarnings => T("Замечания", "Issues");
+    public static string StatsNoWarnings => T("Замечаний нет", "No issues");
+    public static string StatsDetails => T("Подробно по раундам", "By round");
+    public static string StatsRemoveUnusedHint => T("Убрать из пакета файлы, которые не используются ни в одном вопросе. Перед удалением программа покажет их список и спросит подтверждение.", "Remove files that no question uses. The list is shown for confirmation first.");
+
     // Start page
     public static string StartSubtitle => T("Редактор пакетов вопросов для SIGame", "Question pack editor for SIGame");
     public static string StartNew => T("Новый пакет", "New pack");
