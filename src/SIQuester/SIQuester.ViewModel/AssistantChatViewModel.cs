@@ -45,6 +45,17 @@ public sealed class ChatMessageViewModel : ModelViewBase
         }
     }
 
+    /// <summary>
+    /// Text sent to the AI in the conversation history when it differs from <see cref="Text" />
+    /// (the shown text may end with a UI note like "(stopped)").
+    /// </summary>
+    public string? HistoryText { get; set; }
+
+    /// <summary>
+    /// Not sent to the AI: a question that got no answer (missing key, error, stopped at once) or a UI-only note.
+    /// </summary>
+    public bool SkipInHistory { get; set; }
+
     public ChatMessageViewModel(bool isUser, string text)
     {
         IsUser = isUser;
@@ -176,20 +187,23 @@ public sealed class AssistantChatViewModel : ModelViewBase
         }
 
         Input = "";
-        Messages.Add(new ChatMessageViewModel(true, text));
+        var question = new ChatMessageViewModel(true, text);
+        Messages.Add(question);
 
         var useGpt = AppSettings.Default.AiProvider == AiProvider.ChatGPT;
 
         if (useGpt ? !GptAssistant.IsConfigured : !ClaudeAssistant.IsConfigured)
         {
+            question.SkipInHistory = true; // unanswered: must not be sent again with the next question
             Messages.Add(new ChatMessageViewModel(false, useGpt ? UiText.ChatNoKeyGpt : UiText.ChatNoKey) { IsError = true });
             return;
         }
 
-        // Conversation for the API: successful turns only (error notes are not sent)
+        // Conversation for the API: answered turns only, without error and UI notes
         var history = Messages
-            .Where(m => !m.IsError && m.Text.Length > 0)
-            .Select(m => (m.IsUser, m.Text))
+            .Where(m => !m.IsError && !m.SkipInHistory)
+            .Select(m => (m.IsUser, Text: m.HistoryText ?? m.Text))
+            .Where(m => m.Text.Length > 0)
             .ToList();
 
         var answer = new ChatMessageViewModel(false, "");
@@ -211,20 +225,34 @@ public sealed class AssistantChatViewModel : ModelViewBase
             {
                 answer.Text = UiText.ChatRefused;
                 answer.IsError = true;
+                question.SkipInHistory = true;
             }
             else if (reason is "maxtokens" or "length")
             {
+                answer.HistoryText = answer.Text; // the AI gets its own text without the UI note
                 answer.Text += "\n\n" + UiText.ChatTruncated;
             }
         }
         catch (OperationCanceledException)
         {
-            answer.Text += (answer.Text.Length > 0 ? "\n\n" : "") + UiText.ChatStopped;
+            if (answer.Text.Length > 0)
+            {
+                answer.HistoryText = answer.Text; // the part that arrived before stopping
+                answer.Text += "\n\n" + UiText.ChatStopped;
+            }
+            else
+            {
+                // Stopped before any text: only a note is shown, the question stays unanswered
+                answer.Text = UiText.ChatStopped;
+                answer.SkipInHistory = true;
+                question.SkipInHistory = true;
+            }
         }
         catch (Exception exc)
         {
             answer.Text = UiText.ChatErrorPrefix + exc.Message;
             answer.IsError = true;
+            question.SkipInHistory = true;
         }
         finally
         {

@@ -97,15 +97,20 @@ public partial class App : Application
         AppSettings.Default = _settings;
         AppSettings.Default.View = ViewMode.TreeFull; // Only the tree view is used (view switcher is hidden)
 
-        // One-time move from the old defaults to the modern font
-        if (AppSettings.Default.FontFamily == "Calibri")
+        // One-time move from the old defaults to the modern font (a font chosen later in Settings is kept)
+        if (!AppSettings.Default.ModernFontApplied)
         {
-            AppSettings.Default.FontFamily = "Segoe UI Variable Text";
-
-            if (AppSettings.Default.FontSize == 15)
+            if (AppSettings.Default.FontFamily == "Calibri")
             {
-                AppSettings.Default.FontSize = 16;
+                AppSettings.Default.FontFamily = "Segoe UI Variable Text";
+
+                if (AppSettings.Default.FontSize == 15)
+                {
+                    AppSettings.Default.FontSize = 16;
+                }
             }
+
+            AppSettings.Default.ModernFontApplied = true;
         }
         AppSettings.Default.PropertyChanged += Default_PropertyChanged;
 

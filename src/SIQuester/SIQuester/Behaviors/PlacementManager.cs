@@ -6,7 +6,52 @@ namespace SIQuester.Behaviors;
 
 public static class PlacementManager
 {
-    private static readonly HashSet<FrameworkElement> HookedToolbars = new();
+    /// <summary>
+    /// Layout handlers of the toolbars that are on screen. A toolbar is removed when it is unloaded
+    /// (document closed or another tab selected), so closed documents are not kept in memory.
+    /// </summary>
+    private static readonly Dictionary<FrameworkElement, EventHandler> HookedToolbars = new();
+
+    private static void Hook(FrameworkElement toolbar)
+    {
+        if (HookedToolbars.ContainsKey(toolbar))
+        {
+            return;
+        }
+
+        void OnLayoutUpdated(object? sender, EventArgs e)
+        {
+            if (GetPlacementTarget(toolbar) is UIElement current && toolbar.IsVisible)
+            {
+                Place(toolbar, current, allowRetry: false);
+            }
+        }
+
+        void OnUnloaded(object sender, RoutedEventArgs e)
+        {
+            toolbar.Unloaded -= OnUnloaded;
+            toolbar.LayoutUpdated -= OnLayoutUpdated;
+            HookedToolbars.Remove(toolbar);
+            LastSpots.Remove(toolbar);
+
+            // Shown again later (tab selected back): start following the layout again
+            void OnLoadedAgain(object s, RoutedEventArgs a)
+            {
+                toolbar.Loaded -= OnLoadedAgain;
+
+                if (GetPlacementTarget(toolbar) is UIElement current)
+                {
+                    Place(toolbar, current, allowRetry: true);
+                }
+            }
+
+            toolbar.Loaded += OnLoadedAgain;
+        }
+
+        HookedToolbars[toolbar] = OnLayoutUpdated;
+        toolbar.LayoutUpdated += OnLayoutUpdated;
+        toolbar.Unloaded += OnUnloaded;
+    }
 
     public static UIElement? GetPlacementTarget(DependencyObject obj) => (UIElement)obj.GetValue(PlacementTargetProperty);
 
@@ -51,15 +96,9 @@ public static class PlacementManager
         // Layout keeps changing after startup (the document column and the tree items get their final sizes,
         // themes expand, the toolbar gets its second row): re-check after every layout pass.
         // AnimateTo skips the move when the spot did not change, so this is cheap.
-        if (allowRetry && HookedToolbars.Add(toolbar))
+        if (allowRetry)
         {
-            toolbar.LayoutUpdated += (_, _) =>
-            {
-                if (GetPlacementTarget(toolbar) is UIElement current && toolbar.IsVisible)
-                {
-                    Place(toolbar, current, allowRetry: false);
-                }
-            };
+            Hook(toolbar);
         }
 
         var margin = newPlacement.TranslatePoint(new Point(0, 0), grid);

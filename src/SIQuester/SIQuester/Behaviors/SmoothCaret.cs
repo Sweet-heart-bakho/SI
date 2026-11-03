@@ -59,12 +59,39 @@ internal static class SmoothCaret
         _adorner.Opacity = 0;
         _settleFrames = 0;
         _lastOrigin = null;
-        CompositionTarget.Rendering -= WaitUntilSettled;
-        CompositionTarget.Rendering += WaitUntilSettled;
+        StartWatching();
     }
 
     private static int _settleFrames;
+    private static int _stillFrames;
+    private static bool _watching;
     private static Point? _lastOrigin;
+
+    /// <summary>
+    /// Frames the box must stay still (with the caret shown) before watching stops: covers a slide
+    /// that starts a little after the focus. Watching every frame keeps WPF rendering, so it is not left on.
+    /// </summary>
+    private const int StillFramesToStop = 45;
+
+    private static void StartWatching()
+    {
+        _stillFrames = 0;
+
+        if (!_watching)
+        {
+            _watching = true;
+            CompositionTarget.Rendering += WaitUntilSettled;
+        }
+    }
+
+    private static void StopWatching()
+    {
+        if (_watching)
+        {
+            _watching = false;
+            CompositionTarget.Rendering -= WaitUntilSettled;
+        }
+    }
 
     private static void WaitUntilSettled(object? sender, EventArgs e)
     {
@@ -73,7 +100,7 @@ internal static class SmoothCaret
 
         if (textBox == null || adorner == null)
         {
-            CompositionTarget.Rendering -= WaitUntilSettled;
+            StopWatching();
             return;
         }
 
@@ -99,13 +126,20 @@ internal static class SmoothCaret
             // The box is sliding (tab switch, expanding theme, scrolling): hide the caret until it stops,
             // the adorner layer does not follow such moves by itself
             _settleFrames = 0;
+            _stillFrames = 0;
             adorner.Opacity = 0;
             return;
         }
 
         if (adorner.Opacity > 0)
         {
-            return; // standing still and already shown
+            // Standing still and already shown: stop watching after a while
+            if (++_stillFrames >= StillFramesToStop)
+            {
+                StopWatching();
+            }
+
+            return;
         }
 
         if (++_settleFrames < 4)
@@ -143,12 +177,14 @@ internal static class SmoothCaret
         }
     }
 
-    // Scrolling or relayout can move the text without changing the caret index
+    // Scrolling or relayout can move the text without changing the caret index; the box itself
+    // may start moving too (scrolling, expanding), so watch it again for a short while
     private static void OnLayoutUpdated(object? sender, EventArgs e)
     {
         if (_textBox != null)
         {
             _adorner?.MoveTo(_textBox, animate: false, onlyIfMoved: true);
+            StartWatching();
         }
     }
 
@@ -163,7 +199,7 @@ internal static class SmoothCaret
         _textBox.TextChanged -= Update;
         _textBox.SizeChanged -= Snap;
         _textBox.LayoutUpdated -= OnLayoutUpdated;
-        CompositionTarget.Rendering -= WaitUntilSettled;
+        StopWatching();
 
         if (ReferenceEquals(_textBox.CaretBrush, Brushes.Transparent))
         {
@@ -285,7 +321,8 @@ internal static class SmoothCaret
         // Caret stays solid while moving/typing, then blinks softly
         private void RestartBlink()
         {
-            var blink = new DoubleAnimationUsingKeyFrames { RepeatBehavior = RepeatBehavior.Forever };
+            // Like the Windows caret: blinks for a while, then stays on (an endless animation would keep WPF rendering non-stop)
+            var blink = new DoubleAnimationUsingKeyFrames { RepeatBehavior = new RepeatBehavior(10) };
             blink.KeyFrames.Add(new DiscreteDoubleKeyFrame(1, KeyTime.FromTimeSpan(TimeSpan.Zero)));
             blink.KeyFrames.Add(new LinearDoubleKeyFrame(1, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(500))));
             blink.KeyFrames.Add(new LinearDoubleKeyFrame(0, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(650))));

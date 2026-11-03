@@ -22,6 +22,14 @@ public static class JoinFrames
     public static readonly DependencyProperty IsEnabledProperty = DependencyProperty.RegisterAttached(
         "IsEnabled", typeof(bool), typeof(JoinFrames), new PropertyMetadata(false, OnIsEnabledChanged));
 
+    /// <summary>
+    /// Adorner and layout handler of a list that is on screen.
+    /// </summary>
+    private sealed record Attachment(AdornerLayer Layer, FramesAdorner Adorner, EventHandler OnLayout);
+
+    private static readonly DependencyProperty AttachmentProperty = DependencyProperty.RegisterAttached(
+        "Attachment", typeof(Attachment), typeof(JoinFrames), new PropertyMetadata(null));
+
     private static void OnIsEnabledChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         if (d is not ItemsControl list || e.NewValue is not true)
@@ -29,21 +37,59 @@ public static class JoinFrames
             return;
         }
 
-        list.Loaded += (_, _) =>
+        // Follow the layout only while the list is on screen: no handlers pile up and closed lists are freed
+        list.Loaded += (_, _) => Attach(list);
+        list.Unloaded += (_, _) => Detach(list);
+
+        if (list.IsLoaded)
         {
-            var layer = AdornerLayer.GetAdornerLayer(list);
+            Attach(list);
+        }
+    }
 
-            if (layer == null || layer.GetAdorners(list)?.OfType<FramesAdorner>().Any() == true)
-            {
-                return;
-            }
+    private static void Attach(ItemsControl list)
+    {
+        if (list.GetValue(AttachmentProperty) != null)
+        {
+            return;
+        }
 
-            var adorner = new FramesAdorner(list);
-            layer.Add(adorner);
+        var layer = AdornerLayer.GetAdornerLayer(list);
 
-            // Joining/unjoining changes the link icon and therefore the layout: redraw after every layout pass
-            list.LayoutUpdated += (_, _) => adorner.Refresh();
-        };
+        if (layer == null)
+        {
+            return;
+        }
+
+        var adorner = new FramesAdorner(list);
+        layer.Add(adorner);
+
+        // Joining/unjoining changes the link icon and therefore the layout: redraw after a layout pass
+        EventHandler onLayout = (_, _) => adorner.Refresh();
+        list.LayoutUpdated += onLayout;
+
+        list.SetValue(AttachmentProperty, new Attachment(layer, adorner, onLayout));
+    }
+
+    private static void Detach(ItemsControl list)
+    {
+        if (list.GetValue(AttachmentProperty) is not Attachment attachment)
+        {
+            return;
+        }
+
+        list.LayoutUpdated -= attachment.OnLayout;
+
+        try
+        {
+            attachment.Layer.Remove(attachment.Adorner);
+        }
+        catch
+        {
+            // The layer is already gone
+        }
+
+        list.ClearValue(AttachmentProperty);
     }
 
     private sealed class FramesAdorner : Adorner
@@ -69,6 +115,12 @@ public static class JoinFrames
 
         public void Refresh()
         {
+            // Most lists have no joined items: skip the position math entirely (this runs after every layout pass)
+            if (_groups.Count == 0 && !HasJoinedItems())
+            {
+                return;
+            }
+
             var groups = ComputeGroups();
 
             if (!SameGroups(groups, _groups))
@@ -76,6 +128,21 @@ public static class JoinFrames
                 _groups = groups;
                 InvalidateVisual();
             }
+        }
+
+        private bool HasJoinedItems()
+        {
+            var count = _list.Items.Count;
+
+            for (var i = 0; i < count - 1; i++)
+            {
+                if (_list.Items[i] is ContentItemViewModel item && !item.Model.WaitForFinish)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static bool SameGroups(List<List<Rect>> a, List<List<Rect>> b) =>

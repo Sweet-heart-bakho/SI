@@ -226,13 +226,31 @@ public partial class MainWindow : MetroWindow
 
         // Ctrl+Z / Ctrl+Y always use document undo/redo (same as the toolbar buttons),
         // even when a text box has focus and would otherwise handle its own undo.
-        // The assistant chat input keeps its own text undo.
+        // The assistant chat input and fields that are not part of the pack (search, side panel filter:
+        // their DataContext is the workspace itself) keep their own text undo.
+        var focusedBox = Keyboard.FocusedElement as TextBox;
+
         if (DataContext is MainViewModel mainVm
             && !IsInsideAssistantChat(Keyboard.FocusedElement as DependencyObject)
+            && focusedBox?.DataContext is not WorkspaceViewModel
             && mainVm.ActiveDocument != null
             && (e.KeyboardDevice.Modifiers & ModifierKeys.Control) != 0
             && (e.Key == Key.Z || e.Key == Key.Y))
         {
+            // A field that saves when it loses focus may hold text that is not in the pack yet:
+            // save it first, so Ctrl+Z undoes exactly this typing and not an older change
+            if (focusedBox != null && !focusedBox.IsReadOnly)
+            {
+                try
+                {
+                    focusedBox.GetBindingExpression(TextBox.TextProperty)?.UpdateSource();
+                }
+                catch (InvalidOperationException)
+                {
+                    // Binding that cannot write back: nothing to save
+                }
+            }
+
             var isRedo = e.Key == Key.Y || (e.KeyboardDevice.Modifiers & ModifierKeys.Shift) != 0;
             var operations = mainVm.ActiveDocument.OperationsManager;
             var command = isRedo ? operations.Redo : operations.Undo;
@@ -340,37 +358,15 @@ public partial class MainWindow : MetroWindow
 
         try
         {
+            var mediaFiles = GetClipboardMediaFiles();
 
-            var files = Clipboard.GetFileDropList();
-
-            if (files.Count > 0)
+            if (mediaFiles.Count > 0)
             {
-                foreach (var file in files)
+                foreach (var file in mediaFiles)
                 {
-                    if (file != null)
-                    {
-                        contentItemViewModel.TryImportMedia(file);
-                    }
+                    contentItemViewModel.TryImportMedia(file);
                 }
 
-                return;
-            }
-
-            if (Clipboard.ContainsImage())
-            {
-                var bitmap = Clipboard.GetImage();
-                var stream = new MemoryStream();
-                var encoder = new PngBitmapEncoder();
-                encoder.Frames.Add(BitmapFrame.Create(bitmap));
-                encoder.Save(stream);
-
-                var tempMediaDirectory = Path.Combine(Path.GetTempPath(), AppSettings.ProductName, AppSettings.MediaFolderName);
-                Directory.CreateDirectory(tempMediaDirectory);
-
-                var fileName = Path.Combine(tempMediaDirectory, $"{Guid.NewGuid()}.png");
-                File.WriteAllBytes(fileName, stream.ToArray());
-
-                contentItemViewModel.TryImportMedia(fileName);
                 return;
             }
 

@@ -132,21 +132,6 @@ public static class SmartMenuManager
         ActionMenuViewModel.Instance.IsOpen = true;
     }
 
-    private static T? FindAncestor<T>(DependencyObject? element) where T : DependencyObject
-    {
-        while (element != null)
-        {
-            if (element is T found)
-            {
-                return found;
-            }
-
-            element = System.Windows.Media.VisualTreeHelper.GetParent(element);
-        }
-
-        return null;
-    }
-
     private static void Control_LostFocus(object sender, RoutedEventArgs e)
     {
         ActionMenuViewModel.Instance.IsOpen = false;

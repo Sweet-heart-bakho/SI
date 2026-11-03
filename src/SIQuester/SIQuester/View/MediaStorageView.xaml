@@ -16,6 +16,7 @@
     DataContextChanged="UserControl_DataContextChanged">
     <UserControl.Resources>        
         <lc:FileSizeConverter x:Key="FileSizeConverter" />
+        <lc:ThumbnailConverter x:Key="ThumbnailConverter" />
         <lc:MediaSortFieldConverter x:Key="MediaSortFieldConverter" />
         <lc:SortDirectionConverter x:Key="SortDirectionConverter" />
         
@@ -36,7 +37,8 @@
         <ls:AtomTypeSelector x:Key="TypeSelector">
             <ls:AtomTypeSelector.ImageTemplate>
                 <DataTemplate>
-                    <Image Margin="0,0,0,5" Source="{Binding MediaSource.Uri, Converter={StaticResource ImageConverter}}" />
+                    <!-- Small cached preview: decoding every picture at full size made the tab slow -->
+                    <Image Margin="0,0,0,5" Source="{Binding MediaSource.Uri, Converter={StaticResource ThumbnailConverter}}" />
                 </DataTemplate>
             </ls:AtomTypeSelector.ImageTemplate>
 
@@ -173,10 +175,19 @@
             SelectedValue="{Binding CurrentFile, Mode=TwoWay}"
             SelectionMode="Single"
             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+            ScrollViewer.CanContentScroll="True"
+            VirtualizingPanel.IsVirtualizing="True"
+            VirtualizingPanel.VirtualizationMode="Standard"
+            VirtualizingPanel.ScrollUnit="Pixel"
+            VirtualizingPanel.CacheLength="2,2"
+            VirtualizingPanel.CacheLengthUnit="Item"
+            Background="Transparent"
+            BorderThickness="0"
             lb:ScrollIntoSelectedItemBehavior.IsAttached="True">
+            <!-- Only the items on screen (and a couple around them) are created: big packs open the tab quickly -->
             <ListBox.ItemsPanel>
                 <ItemsPanelTemplate>
-                    <WrapPanel />
+                    <VirtualizingStackPanel />
                 </ItemsPanelTemplate>
             </ListBox.ItemsPanel>
             
@@ -185,17 +196,25 @@
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="ListBoxItem">
-                                <Border Name="bd" BorderThickness="1" Padding="8" Margin="5,5,0,0" Background="#22000000">
+                                <Border
+                                    Name="bd"
+                                    CornerRadius="8"
+                                    BorderThickness="1"
+                                    BorderBrush="{DynamicResource Ui.CardStroke}"
+                                    Padding="8"
+                                    Margin="0,0,4,6"
+                                    Background="{DynamicResource Ui.Card}">
                                     <ContentPresenter />
                                 </Border>
 
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="bd" Property="Background" Value="#FFADBCFF" />
+                                        <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource Ui.CardHoverStroke}" />
                                     </Trigger>
 
                                     <Trigger Property="IsSelected" Value="True">
-                                        <Setter TargetName="bd" Property="Background" Value="#FF8AA0FF" />
+                                        <Setter TargetName="bd" Property="Background" Value="{DynamicResource Ui.AccentSoft}" />
+                                        <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource Ui.Accent}" />
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>

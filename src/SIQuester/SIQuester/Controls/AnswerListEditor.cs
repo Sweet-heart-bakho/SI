@@ -133,12 +133,12 @@ public sealed class AnswerListEditor : StackPanel
         var row = new DockPanel { Margin = new Thickness(0, 0, 0, 3), LastChildFill = true };
 
         // "+" only on the last row, but every row keeps its place so the fields line up
-        var add = CreateButton("", "Добавить ответ", () => AddAnswer(answers));
+        var add = CreateButton("", UiText.AddAnswer, () => AddAnswer(answers));
         add.Visibility = isLast ? Visibility.Visible : Visibility.Hidden;
         DockPanel.SetDock(add, Dock.Right);
         row.Children.Add(add);
 
-        var remove = CreateButton("", "Удалить ответ", () => RemoveAnswer(answers, index));
+        var remove = CreateButton("", UiText.RemoveAnswer, () => RemoveAnswer(answers, index));
         DockPanel.SetDock(remove, Dock.Right);
         row.Children.Add(remove);
 

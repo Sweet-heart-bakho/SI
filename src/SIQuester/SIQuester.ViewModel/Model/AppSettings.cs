@@ -644,12 +644,12 @@ public sealed class AppSettings : INotifyPropertyChanged
         }
     }
 
-    private bool _showAssistant = true;
+    private bool _showAssistant = false;
 
     /// <summary>
-    /// Show the AI assistant button in the bottom-right corner of the main window.
+    /// Show the AI assistant button in the bottom-right corner of the main window (off by default: needs an API key).
     /// </summary>
-    [DefaultValue(true)]
+    [DefaultValue(false)]
     public bool ShowAssistant
     {
         get => _showAssistant;
@@ -677,6 +677,7 @@ public sealed class AppSettings : INotifyPropertyChanged
             if (_aiProvider != value)
             {
                 _aiProvider = value;
+                OnPropertyChanged(nameof(CanUseAI));
                 OnPropertyChanged();
             }
         }
@@ -704,14 +705,32 @@ public sealed class AppSettings : INotifyPropertyChanged
     }
 
     /// <summary>
-    /// AI generation is available: GPT is enabled or a Claude API key is set (in settings or ANTHROPIC_API_KEY).
+    /// AI generation is available for the selected assistant: Claude needs its key (in settings or ANTHROPIC_API_KEY),
+    /// ChatGPT needs the OpenAI key.
     /// </summary>
     [JsonIgnore]
-    public bool CanUseAI =>
-        UseGPT
-        || !string.IsNullOrWhiteSpace(GPTApiKey)
-        || !string.IsNullOrWhiteSpace(ClaudeApiKey)
-        || !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("ANTHROPIC_API_KEY"));
+    public bool CanUseAI => AiProvider == AiProvider.Claude
+        ? !string.IsNullOrWhiteSpace(ClaudeApiKey) || !string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("ANTHROPIC_API_KEY"))
+        : !string.IsNullOrWhiteSpace(GPTApiKey);
+
+    private bool _modernFontApplied;
+
+    /// <summary>
+    /// The one-time move from the old default font (Calibri 15) to Segoe UI Variable Text 16 is done.
+    /// </summary>
+    [DefaultValue(false)]
+    public bool ModernFontApplied
+    {
+        get => _modernFontApplied;
+        set
+        {
+            if (_modernFontApplied != value)
+            {
+                _modernFontApplied = value;
+                OnPropertyChanged();
+            }
+        }
+    }
 
     private string _gptModel = DefaultGPTModel;
     

@@ -40,7 +40,11 @@ internal static class MediaShrinker
         try
         {
             var decoder = BitmapDecoder.Create(new Uri(path), BitmapCreateOptions.IgnoreColorProfile, BitmapCacheOption.OnLoad);
-            source = decoder.Frames[0];
+            var frame = decoder.Frames[0];
+
+            // Phone photos are often stored sideways with an EXIF "rotate me" tag; the new file has no tags,
+            // so turn the pixels themselves
+            source = ApplyExifOrientation(frame, ReadExifOrientation(frame));
         }
         catch
         {
@@ -92,6 +96,46 @@ internal static class MediaShrinker
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// EXIF orientation (1 = as stored; 2…8 = mirrored and/or rotated), 1 when there is no tag.
+    /// </summary>
+    private static int ReadExifOrientation(BitmapFrame frame)
+    {
+        try
+        {
+            if (frame.Metadata is BitmapMetadata metadata && metadata.GetQuery("System.Photo.Orientation") is ushort value)
+            {
+                return value;
+            }
+        }
+        catch
+        {
+            // No readable metadata
+        }
+
+        return 1;
+    }
+
+    /// <summary>
+    /// Turns the picture so that it looks the way the EXIF orientation says it should.
+    /// </summary>
+    private static BitmapSource ApplyExifOrientation(BitmapSource source, int orientation)
+    {
+        Transform? transform = orientation switch
+        {
+            2 => new ScaleTransform(-1, 1), // mirrored
+            3 => new RotateTransform(180),
+            4 => new ScaleTransform(1, -1), // mirrored upside down
+            5 => new TransformGroup { Children = { new RotateTransform(90), new ScaleTransform(-1, 1) } },
+            6 => new RotateTransform(90),
+            7 => new TransformGroup { Children = { new RotateTransform(90), new ScaleTransform(1, -1) } },
+            8 => new RotateTransform(270),
+            _ => null,
+        };
+
+        return transform == null ? source : new TransformedBitmap(source, transform);
     }
 
     private static byte[] Encode(BitmapEncoder encoder, BitmapSource frame)
