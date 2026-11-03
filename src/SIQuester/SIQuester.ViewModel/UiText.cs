@@ -30,6 +30,11 @@ public static class UiText
     // Media compression
     public static string AutoCompressMedia => T("Автоматически сжимать картинки больше 1 МБ при добавлении", "Automatically compress pictures larger than 1 MB when adding them");
 
+    // Saving media from the pack
+    public static string MediaSaveAs => T("Сохранить как…", "Save as…");
+    public static string MediaAllFiles => T("Все файлы", "All files");
+    public static string MediaSaveError => T("Не удалось сохранить файл", "Could not save the file");
+
     // Start page
     public static string StartSubtitle => T("Редактор пакетов вопросов для SIGame", "Question pack editor for SIGame");
     public static string StartNew => T("Новый пакет", "New pack");

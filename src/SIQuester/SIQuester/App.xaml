@@ -2667,7 +2667,7 @@
                 <Setter Property="ContentTemplate">
                     <Setter.Value>
                         <DataTemplate>
-                            <Image Source="{Binding Logo.Uri, Converter={StaticResource ImageConverter}}" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            <Image lb:MediaExport.IsEnabled="True" Source="{Binding Logo.Uri, Converter={StaticResource ImageConverter}}" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </DataTemplate>
                     </Setter.Value>
                 </Setter>
@@ -3441,21 +3441,21 @@
 
                 <siqcv:TemplateConverter.Templates>
                     <DataTemplate x:Key="{x:Static pc:ContentTypes.Image}">
-                        <DockPanel>
+                        <DockPanel Background="Transparent" lb:MediaExport.IsEnabled="True">
                             <ContentControl Style="{StaticResource ImageControlNewStyle}" />
                             <ContentControl Style="{StaticResource ContentWarningBox}" />
                         </DockPanel>
                     </DataTemplate>
 
                     <DataTemplate x:Key="{x:Static pc:ContentTypes.Audio}">
-                        <DockPanel>
+                        <DockPanel Background="Transparent" lb:MediaExport.IsEnabled="True">
                             <ContentControl Style="{StaticResource AudioControlNewStyle}" />
                             <ContentControl Style="{StaticResource ContentWarningBox}" />
                         </DockPanel>
                     </DataTemplate>
 
                     <DataTemplate x:Key="{x:Static pc:ContentTypes.Video}">
-                        <DockPanel>
+                        <DockPanel Background="Transparent" lb:MediaExport.IsEnabled="True">
                             <ContentControl Style="{StaticResource VideoControlNewStyle}" />
                             <ContentControl Style="{StaticResource ContentWarningBox}" />
                         </DockPanel>
