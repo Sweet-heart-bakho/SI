@@ -740,7 +740,7 @@
                                     <DataTemplate>
                                         <Border Background="{StaticResource SidePanelBrush}">
                                             <Grid>
-                                                <TabControl BorderThickness="0,0,1,0" BorderBrush="{StaticResource LightGrayBrush}" Margin="1,0,0,1" SelectedIndex="{Binding SideIndex}">
+                                                <TabControl BorderThickness="0,0,1,0" BorderBrush="{DynamicResource Ui.Divider}" Margin="1,0,0,1" SelectedIndex="{Binding SideIndex}">
                                                     <TabControl.Resources>
                                                         <Style TargetType="TabItem">
                                                             <Setter Property="Template">
@@ -748,7 +748,7 @@
                                                                     <ControlTemplate TargetType="TabItem">
                                                                         <Border
                                                                             x:Name="borderMain"
-                                                                            BorderThickness="0,0,1,0"
+                                                                            BorderThickness="0"
                                                                             BorderBrush="{DynamicResource Ui.CardStroke}"
                                                                             Margin="0,1">
                                                                             <Border
