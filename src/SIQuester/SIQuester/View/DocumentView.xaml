@@ -748,9 +748,9 @@
                                                                     <ControlTemplate TargetType="TabItem">
                                                                         <Border
                                                                             x:Name="borderMain"
-                                                                            BorderThickness="0"
-                                                                            BorderBrush="{DynamicResource Ui.CardStroke}"
-                                                                            Margin="0,1">
+                                                                            BorderThickness="0,0,1,0"
+                                                                            BorderBrush="{DynamicResource Ui.Divider}"
+                                                                            Margin="0,6" Padding="0,-5">
                                                                             <Border
                                                                                 x:Name="border"
                                                                                 Background="Transparent"
