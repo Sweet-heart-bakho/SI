@@ -385,6 +385,33 @@
                 <GradientStop Color="#3481D8FF" Offset="1"/>
             </LinearGradientBrush>
 
+                <!-- Small icon button of the side panel (+, ×, arrows): rounded highlight, no gray square -->
+                <Style x:Key="SideIconButton" TargetType="ButtonBase">
+                    <Setter Property="Cursor" Value="Hand" />
+                    <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                    <Setter Property="MinWidth" Value="28" />
+                    <Setter Property="MinHeight" Value="28" />
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ButtonBase">
+                                <Border x:Name="Bd" CornerRadius="6" Background="Transparent" Padding="4">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Ui.Hover}" />
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Ui.Pressed}" />
+                                    </Trigger>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter TargetName="Bd" Property="Opacity" Value="0.4" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
                 <!-- Compact drop-down item (media, logo, prices, links, tags): Office-like height and rounded highlight -->
                 <Style x:Key="CompactSubItem" TargetType="MenuItem">
                     <Setter Property="Foreground" Value="{DynamicResource Ui.Text}" />

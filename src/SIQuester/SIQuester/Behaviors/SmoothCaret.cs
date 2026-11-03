@@ -1,4 +1,4 @@
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -51,12 +51,80 @@ internal static class SmoothCaret
 
         textBox.SelectionChanged += Update;
         textBox.TextChanged += Update;
-        textBox.SizeChanged += Update;
+        textBox.SizeChanged += Snap;
         textBox.LayoutUpdated += OnLayoutUpdated;
 
-        // First position after layout is done (sizes may not be ready yet)
+        // The text box may still be sliding in (side panel tabs, expanding themes): keep the caret hidden
+        // until it stops moving, then put the caret in place without animation
+        _adorner.Opacity = 0;
+        _settleFrames = 0;
+        _lastOrigin = null;
+        CompositionTarget.Rendering -= WaitUntilSettled;
+        CompositionTarget.Rendering += WaitUntilSettled;
+    }
+
+    private static int _settleFrames;
+    private static Point? _lastOrigin;
+
+    private static void WaitUntilSettled(object? sender, EventArgs e)
+    {
+        var textBox = _textBox;
         var adorner = _adorner;
-        textBox.Dispatcher.BeginInvoke(() => adorner.MoveTo(textBox, animate: false), System.Windows.Threading.DispatcherPriority.Loaded);
+
+        if (textBox == null || adorner == null)
+        {
+            CompositionTarget.Rendering -= WaitUntilSettled;
+            return;
+        }
+
+        Point? origin = null;
+
+        try
+        {
+            if (textBox.IsVisible && AdornerLayer.GetAdornerLayer(textBox) is AdornerLayer layer)
+            {
+                origin = textBox.TransformToVisual(layer).Transform(new Point(0, 0));
+            }
+        }
+        catch
+        {
+            // Not connected yet
+        }
+
+        var moved = !(origin.HasValue && _lastOrigin.HasValue && (origin.Value - _lastOrigin.Value).Length < 0.5);
+        _lastOrigin = origin;
+
+        if (moved)
+        {
+            // The box is sliding (tab switch, expanding theme, scrolling): hide the caret until it stops,
+            // the adorner layer does not follow such moves by itself
+            _settleFrames = 0;
+            adorner.Opacity = 0;
+            return;
+        }
+
+        if (adorner.Opacity > 0)
+        {
+            return; // standing still and already shown
+        }
+
+        if (++_settleFrames < 4)
+        {
+            return;
+        }
+
+        AdornerLayer.GetAdornerLayer(textBox)?.Update(textBox);
+        adorner.InvalidateArrange();
+        adorner.MoveTo(textBox, animate: false);
+        adorner.Opacity = 1;
+    }
+
+    private static void Snap(object? sender, EventArgs e)
+    {
+        if (_textBox != null)
+        {
+            _adorner?.MoveTo(_textBox, animate: false);
+        }
     }
 
     private static void OnLostFocus(object sender, KeyboardFocusChangedEventArgs e)
@@ -93,8 +161,9 @@ internal static class SmoothCaret
 
         _textBox.SelectionChanged -= Update;
         _textBox.TextChanged -= Update;
-        _textBox.SizeChanged -= Update;
+        _textBox.SizeChanged -= Snap;
         _textBox.LayoutUpdated -= OnLayoutUpdated;
+        CompositionTarget.Rendering -= WaitUntilSettled;
 
         if (ReferenceEquals(_textBox.CaretBrush, Brushes.Transparent))
         {
@@ -188,6 +257,12 @@ internal static class SmoothCaret
             {
                 _caret.Height = rect.Height;
                 InvalidateArrange();
+            }
+
+            // Long jumps (another line far away, a click elsewhere) are not animated: only short glides look smooth
+            if (animate && (Math.Abs(rect.X - _position.X) > 160 || Math.Abs(rect.Y - _position.Y) > rect.Height * 1.5))
+            {
+                animate = false;
             }
 
             if (animate)
