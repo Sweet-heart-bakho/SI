@@ -385,6 +385,30 @@
                 <GradientStop Color="#3481D8FF" Offset="1"/>
             </LinearGradientBrush>
 
+                <!-- Compact drop-down item (media, logo, prices, links, tags): Office-like height and rounded highlight -->
+                <Style x:Key="CompactSubItem" TargetType="MenuItem">
+                    <Setter Property="Foreground" Value="{DynamicResource Ui.Text}" />
+                    <Setter Property="FontSize" Value="14" />
+                    <Setter Property="Cursor" Value="Hand" />
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="MenuItem">
+                                <Border x:Name="Bd" CornerRadius="5" Padding="10,5" MinWidth="160" Background="Transparent">
+                                    <ContentPresenter ContentSource="Header" RecognizesAccessKey="False" VerticalAlignment="Center" />
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsHighlighted" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="{DynamicResource Ui.Hover}" />
+                                    </Trigger>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter TargetName="Bd" Property="Opacity" Value="0.45" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+
             <Style x:Key="ChildMenuItem" TargetType="MenuItem">
                 <Setter Property="Template">
                     <Setter.Value>
@@ -1506,7 +1530,7 @@
                                         <ContentControl.Resources>
                                             <siqcv:MultiCostSetterConverter x:Key="MultiCostSetterConverter" />
 
-                                            <Style x:Key="SubMenuItem" TargetType="MenuItem">
+                                            <Style x:Key="SubMenuItem" TargetType="MenuItem" BasedOn="{StaticResource CompactSubItem}">
                                                 <Setter
                                                     Property="Command"
                                                     Value="{Binding DataContext.SetCosts, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType=Menu}}" />
@@ -1680,7 +1704,7 @@
                                                             </MenuItem.ItemsSource>
                                                             
                                                             <MenuItem.ItemContainerStyle>
-                                                                <Style TargetType="MenuItem">
+                                                                <Style TargetType="MenuItem" BasedOn="{StaticResource CompactSubItem}">
                                                                     <Setter
                                                                         Property="Command"
                                                                         Value="{Binding DataContext.SelectLogo, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType=Menu}}" />
@@ -1955,14 +1979,14 @@
                                         <ContentControl.Resources>
                                             <siqcv:MediaArgsConverter x:Key="MediaArgsConverter" />
 
-                                            <Style x:Key="ContentCommands" TargetType="MenuItem">
+                                            <Style x:Key="ContentCommands" TargetType="MenuItem" BasedOn="{StaticResource CompactSubItem}">
                                                 <Setter Property="Command" Value="{Binding Command}" />
                                                 <Setter Property="Header" Value="{Binding Name}" />
                                                 <Setter Property="CommandParameter" Value="{Binding Parameter}" />
-                                                <Setter Property="Padding" Value="5" />
+
                                             </Style>
 
-                                            <Style x:Key="SubMenuItemLink" TargetType="MenuItem">
+                                            <Style x:Key="SubMenuItemLink" TargetType="MenuItem" BasedOn="{StaticResource CompactSubItem}">
                                                 <Setter
                                                     Property="Command"
                                                     Value="{Binding DataContext.LinkItem, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType=Menu}}" />
@@ -1971,7 +1995,7 @@
                                                 <Setter Property="Header" Value="{Binding}" />
                                             </Style>
 
-                                            <Style x:Key="SubMenuItemTag" TargetType="MenuItem">
+                                            <Style x:Key="SubMenuItemTag" TargetType="MenuItem" BasedOn="{StaticResource CompactSubItem}">
                                                 <Setter
                                                     Property="Command"
                                                     Value="{Binding DataContext.AddTag, RelativeSource={RelativeSource Mode=FindAncestor, AncestorLevel=1, AncestorType=Menu}}" />

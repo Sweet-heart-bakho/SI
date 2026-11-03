@@ -740,6 +740,7 @@
                                                                             <Border
                                                                                 x:Name="border"
                                                                                 Background="Transparent"
+                                                                                CornerRadius="5"
                                                                                 Height="30"
                                                                                 Width="30"
                                                                                 Padding="3"
@@ -757,14 +758,14 @@
                                                                                 <Setter
                                                                                     TargetName="border"
                                                                                     Property="Background"
-                                                                                    Value="{StaticResource ToolBarButtonHover}" />
+                                                                                    Value="{DynamicResource Ui.Hover}" />
                                                                             </Trigger>
                                                                             
                                                                             <Trigger Property="IsSelected" Value="True">
                                                                                 <Setter
                                                                                     TargetName="border"
                                                                                     Property="Background"
-                                                                                    Value="{StaticResource ToolBarButtonPressed}" />
+                                                                                    Value="{DynamicResource Ui.AccentSoft}" />
                                                                             </Trigger>
                                                                             
                                                                             <Trigger Property="Tag" Value="last">

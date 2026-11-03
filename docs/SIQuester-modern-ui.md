@@ -161,6 +161,9 @@ SIGame ограничивает размер картинки 1 МБ. Раньш
 
 - **Сохранение медиа из пака.** Правый щелчок по картинке, звуку, видео в вопросе или ответе, а также по обложке пакета → «Сохранить как…»: файл сохраняется в выбранную папку под исходным именем (`Behaviors/MediaExport.cs`). Для внешних ссылок пункт неактивен.
 
+- **Выпадающие списки панели действий** (картинки, звук, видео, обложка, стоимости, ссылки, теги) — компактные пункты как в Office (около 28 px вместо ~52), со скруглённой подсветкой.
+- Вкладки боковой панели: скруглённая подсветка, выбранная вкладка — мягким акцентом вместо тёмно-синей заливки; линия под активным полем ввода — синяя (раньше бралась из акцента Windows).
+
 ## 14. Локализация
 
 - Все новые надписи собраны в `SIQuester.ViewModel/UiText.cs` в двух вариантах — русском и английском — и переключаются вместе с языком программы.
@@ -212,6 +215,10 @@ Exe: `bin/AnyCPU.Debug/SIQuester/net10.0-windows7.0/SIQuester.exe`.
 
 Сборка:
 ```
-dotnet publish src\SIQuester\SIQuester\SIQuester.csproj -c Release -p:PublishSingleFile=true -r win-x64 --self-contained true -p:EnableCompressionInSingleFile=true -p:Version=6.9.1
-dotnet build deploy\SIQuester.Modern.Setup\SIQuester.Modern.Setup.wixproj -p:Configuration=Release -p:Platform=x64 -p:MsiProductVersion=6.9.1 -p:BuildProjectReferences=false
+dotnet publish src\SIQuester\SIQuester\SIQuester.csproj -c Release -p:PublishSingleFile=true -r win-x64 --self-contained true -p:EnableCompressionInSingleFile=true -p:Version=26.11.1
+dotnet build deploy\SIQuester.Modern.Setup\SIQuester.Modern.Setup.wixproj -p:Configuration=Release -p:Platform=x64 -p:MsiProductVersion=26.11.1 -p:BuildProjectReferences=false
 ```
+
+### Нумерация версий
+
+У SIQuester Modern своя нумерация: **год.месяц.сборка**, например `26.11.1` — первая сборка ноября 2026. Так версии форка не путаются с версиями оригинального SIQuester (6.x), номер всегда растёт (установщик Windows обновляет программу только на больший номер), а проверка обновлений не предлагает «обновиться» до оригинала. Первые сборки форка выходили как 6.9.2–6.9.8.

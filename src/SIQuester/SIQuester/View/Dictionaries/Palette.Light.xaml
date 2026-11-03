@@ -82,4 +82,19 @@
     <SolidColorBrush x:Key="SliderTrackFillPointerOver" Color="#E60F6CBD" />
     <SolidColorBrush x:Key="ProgressBarForeground" Color="#FF0F6CBD" />
     <SolidColorBrush x:Key="TextControlFocusedBorderBrush" Color="#FF0F6CBD" />
+    <!-- Focused text box: accent line at the bottom (Fluent draws it with this brush) -->
+    <LinearGradientBrush x:Key="TextControlElevationBorderFocusedBrush" MappingMode="Absolute" StartPoint="0,0" EndPoint="0,2">
+        <LinearGradientBrush.RelativeTransform>
+            <ScaleTransform CenterY="0.5" ScaleY="-1" />
+        </LinearGradientBrush.RelativeTransform>
+        <GradientStop Offset="1.0" Color="#FF0F6CBD" />
+        <GradientStop Offset="1.0" Color="#0F000000" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="TextControlBorderBrushFocused" MappingMode="Absolute" StartPoint="0,0" EndPoint="0,2">
+        <LinearGradientBrush.RelativeTransform>
+            <ScaleTransform CenterY="0.5" ScaleY="-1" />
+        </LinearGradientBrush.RelativeTransform>
+        <GradientStop Offset="1.0" Color="#FF0F6CBD" />
+        <GradientStop Offset="1.0" Color="#0F000000" />
+    </LinearGradientBrush>
 </ResourceDictionary>
